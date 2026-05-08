@@ -49,7 +49,7 @@ function GitHubIcon({ className = "" }: { className?: string }) {
 
 export default function Home() {
   return (
-    <main className="max-w-5xl mx-auto px-6 py-16 space-y-24">
+    <main className="max-w-5xl mx-auto px-6 pb-24 space-y-24">
 
       {/* Nav */}
       <nav className="flex items-center justify-between sticky top-0 z-10 bg-[#0a0c10]/80 backdrop-blur-sm -mx-6 px-6 py-4 border-b border-[#21262d]/50">
