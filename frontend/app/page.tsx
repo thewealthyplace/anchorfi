@@ -112,6 +112,14 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Contracts */}
+      <section className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-semibold text-white">Contracts</h2>
+          <p className="mt-2 text-[#8b949e]">Six Clarity contracts deployed on Stacks (Clarity 3, epoch 3.1).</p>
+        </div>
+      </section>
+
       {/* Nav */}
       <nav className="flex items-center justify-between">
         <span className="text-lg font-semibold tracking-tight text-white">AnchorFi</span>
