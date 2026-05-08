@@ -51,6 +51,20 @@ export default function Home() {
   return (
     <main className="max-w-5xl mx-auto px-6 py-16 space-y-24">
 
+      {/* Nav */}
+      <nav className="flex items-center justify-between">
+        <span className="text-lg font-semibold tracking-tight text-white">AnchorFi</span>
+        <a
+          href="https://github.com/thewealthyplace/anchorfi"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-sm text-[#8b949e] hover:text-white transition-colors"
+        >
+          <GitHubIcon />
+          View on GitHub
+        </a>
+      </nav>
+
       {/* Hero */}
       <section className="space-y-6 pt-8">
         <div className="inline-flex items-center gap-2 rounded-full border border-[#f7931a]/30 bg-[#f7931a]/10 px-3 py-1 text-xs text-[#f7931a]">
@@ -166,20 +180,6 @@ export default function Home() {
           github.com/thewealthyplace/anchorfi
         </a>
       </footer>
-
-      {/* Nav */}
-      <nav className="flex items-center justify-between">
-        <span className="text-lg font-semibold tracking-tight text-white">AnchorFi</span>
-        <a
-          href="https://github.com/thewealthyplace/anchorfi"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-sm text-[#8b949e] hover:text-white transition-colors"
-        >
-          <GitHubIcon />
-          View on GitHub
-        </a>
-      </nav>
 
     </main>
   );
