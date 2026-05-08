@@ -85,6 +85,10 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Stats */}
+      <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      </section>
+
       {/* Nav */}
       <nav className="flex items-center justify-between">
         <span className="text-lg font-semibold tracking-tight text-white">AnchorFi</span>
