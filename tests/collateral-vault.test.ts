@@ -1,0 +1,72 @@
+import { describe, expect, it } from "vitest";
+import { Cl } from "@stacks/transactions";
+
+const accounts = simnet.getAccounts();
+const deployer = accounts.get("deployer")!;
+const wallet1 = accounts.get("wallet_1")!;
+const wallet2 = accounts.get("wallet_2")!;
+
+const DEPOSIT_AMOUNT = 1_000_000_000;
+
+describe("collateral-vault", () => {
+  it("new user has empty vault", () => {
+    const { result } = simnet.callReadOnlyFn("collateral-vault", "get-vault", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(Cl.tuple({ deposited: Cl.uint(0), locked: Cl.uint(0) }));
+  });
+
+  it("user can deposit STX", () => {
+    const { result } = simnet.callPublicFn(
+      "collateral-vault", "deposit", [Cl.uint(DEPOSIT_AMOUNT)], wallet1
+    );
+    expect(result).toBeOk(Cl.uint(DEPOSIT_AMOUNT));
+  });
+
+  it("deposit updates vault balance", () => {
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(DEPOSIT_AMOUNT)], wallet1);
+    const { result } = simnet.callReadOnlyFn("collateral-vault", "get-vault", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(Cl.tuple({ deposited: Cl.uint(DEPOSIT_AMOUNT), locked: Cl.uint(0) }));
+  });
+
+  it("rejects zero deposit", () => {
+    const { result } = simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(0)], wallet1);
+    expect(result).toBeErr(Cl.uint(301));
+  });
+
+  it("user can withdraw unlocked collateral", () => {
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(DEPOSIT_AMOUNT)], wallet1);
+    const { result } = simnet.callPublicFn(
+      "collateral-vault", "withdraw", [Cl.uint(DEPOSIT_AMOUNT)], wallet1
+    );
+    expect(result).toBeOk(Cl.uint(DEPOSIT_AMOUNT));
+  });
+
+  it("cannot withdraw more than deposited", () => {
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(DEPOSIT_AMOUNT)], wallet1);
+    const { result } = simnet.callPublicFn(
+      "collateral-vault", "withdraw", [Cl.uint(DEPOSIT_AMOUNT + 1)], wallet1
+    );
+    expect(result).toBeErr(Cl.uint(303));
+  });
+
+  it("cannot withdraw from empty vault", () => {
+    const { result } = simnet.callPublicFn(
+      "collateral-vault", "withdraw", [Cl.uint(DEPOSIT_AMOUNT)], wallet1
+    );
+    expect(result).toBeErr(Cl.uint(304));
+  });
+
+  it("total collateral tracks deposits from multiple users", () => {
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(DEPOSIT_AMOUNT)], wallet1);
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(DEPOSIT_AMOUNT)], wallet2);
+    const { result } = simnet.callReadOnlyFn("collateral-vault", "get-total-collateral", [], deployer);
+    expect(result).toBeOk(Cl.uint(DEPOSIT_AMOUNT * 2));
+  });
+
+  it("available collateral reflects unlocked balance", () => {
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(DEPOSIT_AMOUNT)], wallet1);
+    const { result } = simnet.callReadOnlyFn(
+      "collateral-vault", "get-available-collateral", [Cl.principal(wallet1)], wallet1
+    );
+    expect(result).toBeOk(Cl.uint(DEPOSIT_AMOUNT));
+  });
+});
