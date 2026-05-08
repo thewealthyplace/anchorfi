@@ -153,7 +153,7 @@ export default function Home() {
       </section>
 
       {/* Security */}
-      <section className="rounded-xl border border-[#21262d] bg-[#0d1117] p-8 space-y-4">
+      <section className="rounded-xl border border-[#f7931a]/20 bg-[#0d1117] p-8 space-y-4">
         <h2 className="text-xl font-semibold text-white">Security properties</h2>
         <ul className="space-y-2 text-sm text-[#8b949e]">
           {[
