@@ -135,6 +135,25 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Security */}
+      <section className="rounded-xl border border-[#21262d] bg-[#0d1117] p-8 space-y-4">
+        <h2 className="text-xl font-semibold text-white">Security properties</h2>
+        <ul className="space-y-2 text-sm text-[#8b949e]">
+          {[
+            "Cross-contract authorization uses contract-caller, not tx-sender — prevents principal spoofing",
+            "Oracle has stale-price protection (MAX_PRICE_AGE = 144 blocks, ~1 day)",
+            "Collateral vault uses as-contract for safe STX custody and transfer",
+            "Liquidators must repay full debt before receiving collateral + bonus",
+            "Minting aUSD is gated exclusively to the lending-pool contract",
+          ].map((item) => (
+            <li key={item} className="flex gap-3">
+              <span className="text-[#f7931a] mt-0.5 shrink-0">→</span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </section>
+
       {/* Nav */}
       <nav className="flex items-center justify-between">
         <span className="text-lg font-semibold tracking-tight text-white">AnchorFi</span>
