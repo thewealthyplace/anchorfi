@@ -50,6 +50,21 @@ function GitHubIcon({ className = "" }: { className?: string }) {
 export default function Home() {
   return (
     <main className="max-w-5xl mx-auto px-6 py-16 space-y-24">
+
+      {/* Nav */}
+      <nav className="flex items-center justify-between">
+        <span className="text-lg font-semibold tracking-tight text-white">AnchorFi</span>
+        <a
+          href="https://github.com/thewealthyplace/anchorfi"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-sm text-[#8b949e] hover:text-white transition-colors"
+        >
+          <GitHubIcon />
+          View on GitHub
+        </a>
+      </nav>
+
     </main>
   );
 }
