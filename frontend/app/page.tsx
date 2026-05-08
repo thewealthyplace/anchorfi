@@ -172,7 +172,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="flex items-center justify-between border-t border-[#21262d] pt-8 text-sm text-[#8b949e]">
+      <footer className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-[#21262d] pt-8 text-sm text-[#8b949e]">
         <span>AnchorFi — open source, MIT license</span>
         <a
           href="https://github.com/thewealthyplace/anchorfi"
