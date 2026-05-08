@@ -57,6 +57,13 @@ export default function Home() {
           <span className="h-1.5 w-1.5 rounded-full bg-[#f7931a]" />
           Built on Stacks · Secured by Bitcoin
         </div>
+        <h1 className="text-5xl font-bold tracking-tight text-white leading-tight max-w-2xl">
+          Bitcoin-anchored lending, fully on-chain
+        </h1>
+        <p className="text-lg text-[#8b949e] max-w-xl leading-relaxed">
+          Deposit STX as collateral, borrow aUSD against it. Every rule — interest, liquidations,
+          collateral ratios — lives in Clarity smart contracts with Bitcoin finality.
+        </p>
       </section>
 
       {/* Nav */}
