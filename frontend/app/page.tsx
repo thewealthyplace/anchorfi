@@ -154,6 +154,19 @@ export default function Home() {
         </ul>
       </section>
 
+      {/* Footer */}
+      <footer className="flex items-center justify-between border-t border-[#21262d] pt-8 text-sm text-[#8b949e]">
+        <span>AnchorFi — open source, MIT license</span>
+        <a
+          href="https://github.com/thewealthyplace/anchorfi"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-white transition-colors"
+        >
+          github.com/thewealthyplace/anchorfi
+        </a>
+      </footer>
+
       {/* Nav */}
       <nav className="flex items-center justify-between">
         <span className="text-lg font-semibold tracking-tight text-white">AnchorFi</span>
