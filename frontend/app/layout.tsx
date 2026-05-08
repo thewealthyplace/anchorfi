@@ -14,6 +14,10 @@ export const metadata: Metadata = {
     description: "Bitcoin-anchored lending protocol on Stacks",
     type: "website",
   },
+  other: {
+    "talentapp:project_verification":
+      "9d9aa918287d4a0bf202b7b7b43fccd96234af2d66ee6735f074b2f962d8f1cd74ddf9ab616d1b6e9d095ccc4cd6b43c7136f90967466d0127816922ed9ce0fd",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
