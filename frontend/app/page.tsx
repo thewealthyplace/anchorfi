@@ -101,6 +101,15 @@ export default function Home() {
           <h2 className="text-2xl font-semibold text-white">How it works</h2>
           <p className="mt-2 text-[#8b949e]">Three steps, all on-chain.</p>
         </div>
+        <div className="grid gap-6 sm:grid-cols-3">
+          {steps.map((s) => (
+            <div key={s.n} className="rounded-xl border border-[#21262d] bg-[#0d1117] p-6 space-y-3">
+              <span className="font-mono text-3xl font-bold text-[#f7931a]/40">{s.n}</span>
+              <h3 className="text-base font-semibold text-white">{s.title}</h3>
+              <p className="text-sm text-[#8b949e] leading-relaxed">{s.desc}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Nav */}
