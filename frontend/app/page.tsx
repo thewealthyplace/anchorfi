@@ -120,7 +120,7 @@ export default function Home() {
         </div>
         <div className="grid gap-6 sm:grid-cols-3">
           {steps.map((s) => (
-            <div key={s.n} className="rounded-xl border border-[#21262d] bg-[#0d1117] p-6 space-y-3">
+            <div key={s.n} className="rounded-xl border border-[#21262d] bg-[#0d1117] p-6 space-y-3 hover:border-[#f7931a]/30 transition-colors">
               <span className="font-mono text-3xl font-bold text-[#f7931a]/40">{s.n}</span>
               <h3 className="text-base font-semibold text-white">{s.title}</h3>
               <p className="text-sm text-[#8b949e] leading-relaxed">{s.desc}</p>
