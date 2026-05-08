@@ -64,6 +64,25 @@ export default function Home() {
           Deposit STX as collateral, borrow aUSD against it. Every rule — interest, liquidations,
           collateral ratios — lives in Clarity smart contracts with Bitcoin finality.
         </p>
+        <div className="flex gap-4 pt-2">
+          <a
+            href="https://github.com/thewealthyplace/anchorfi"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-black hover:bg-white/90 transition-colors"
+          >
+            <GitHubIcon className="text-black" />
+            GitHub
+          </a>
+          <a
+            href="https://github.com/thewealthyplace/anchorfi/tree/main/contracts"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-lg border border-[#30363d] px-5 py-2.5 text-sm font-medium text-[#e8eaf0] hover:border-[#8b949e] transition-colors"
+          >
+            View Contracts
+          </a>
+        </div>
       </section>
 
       {/* Nav */}
