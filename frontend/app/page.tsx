@@ -87,6 +87,12 @@ export default function Home() {
 
       {/* Stats */}
       <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        {params.map((p) => (
+          <div key={p.label} className="rounded-xl border border-[#21262d] bg-[#0d1117] p-5 space-y-1">
+            <p className="text-xs text-[#8b949e] uppercase tracking-wider">{p.label}</p>
+            <p className="text-2xl font-semibold text-white">{p.value}</p>
+          </div>
+        ))}
       </section>
 
       {/* Nav */}
