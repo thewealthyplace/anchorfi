@@ -95,6 +95,14 @@ export default function Home() {
         ))}
       </section>
 
+      {/* How it works */}
+      <section className="space-y-10">
+        <div>
+          <h2 className="text-2xl font-semibold text-white">How it works</h2>
+          <p className="mt-2 text-[#8b949e]">Three steps, all on-chain.</p>
+        </div>
+      </section>
+
       {/* Nav */}
       <nav className="flex items-center justify-between">
         <span className="text-lg font-semibold tracking-tight text-white">AnchorFi</span>
