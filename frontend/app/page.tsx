@@ -51,6 +51,14 @@ export default function Home() {
   return (
     <main className="max-w-5xl mx-auto px-6 py-16 space-y-24">
 
+      {/* Hero */}
+      <section className="space-y-6 pt-8">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#f7931a]/30 bg-[#f7931a]/10 px-3 py-1 text-xs text-[#f7931a]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#f7931a]" />
+          Built on Stacks · Secured by Bitcoin
+        </div>
+      </section>
+
       {/* Nav */}
       <nav className="flex items-center justify-between">
         <span className="text-lg font-semibold tracking-tight text-white">AnchorFi</span>
