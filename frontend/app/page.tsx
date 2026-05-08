@@ -69,7 +69,7 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="space-y-6 pt-8">
+      <section className="space-y-6 pt-16">
         <div className="inline-flex items-center gap-2 rounded-full border border-[#f7931a]/30 bg-[#f7931a]/10 px-3 py-1 text-xs text-[#f7931a]">
           <span className="h-1.5 w-1.5 rounded-full bg-[#f7931a]" />
           Built on Stacks · Secured by Bitcoin
