@@ -118,6 +118,21 @@ export default function Home() {
           <h2 className="text-2xl font-semibold text-white">Contracts</h2>
           <p className="mt-2 text-[#8b949e]">Six Clarity contracts deployed on Stacks (Clarity 3, epoch 3.1).</p>
         </div>
+        <div className="rounded-xl border border-[#21262d] overflow-hidden">
+          {contracts.map((c, i) => (
+            <div
+              key={c.name}
+              className={`flex items-start gap-4 px-6 py-4 ${
+                i !== contracts.length - 1 ? "border-b border-[#21262d]" : ""
+              }`}
+            >
+              <code className="text-sm font-mono text-[#f7931a] whitespace-nowrap pt-0.5 w-40 shrink-0">
+                {c.name}
+              </code>
+              <p className="text-sm text-[#8b949e]">{c.role}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Nav */}
