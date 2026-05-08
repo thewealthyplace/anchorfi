@@ -53,7 +53,10 @@ export default function Home() {
 
       {/* Nav */}
       <nav className="flex items-center justify-between sticky top-0 z-10 bg-[#0a0c10]/80 backdrop-blur-sm -mx-6 px-6 py-4 border-b border-[#21262d]/50">
-        <span className="text-lg font-semibold tracking-tight text-white">AnchorFi</span>
+        <span className="text-lg font-semibold tracking-tight text-white flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-[#f7931a]" />
+          AnchorFi
+        </span>
         <a
           href="https://github.com/thewealthyplace/anchorfi"
           target="_blank"
