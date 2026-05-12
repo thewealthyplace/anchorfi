@@ -12,3 +12,11 @@ Loan activity tracking stores borrower loan events when loans are opened, repaid
 - `loan-event`: stores event details by borrower and index
 
 Each event contains action type, action amount, block height, and remaining debt.
+
+## Accessors
+
+The lending-pool contract exposes read-only accessors for loan event history:
+- `get-loan-event-count`
+- `get-loan-event`
+- `get-last-loan-event`
+- `get-loan-event-summary`
