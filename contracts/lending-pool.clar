@@ -184,6 +184,7 @@
 )
 
 (define-read-only (get-loan (borrower principal))
+  ;; Get loan details for a borrower
   (ok (map-get? loans borrower))
 )
 
