@@ -72,6 +72,11 @@
   (/ (* stx-amount price) u1000000)
 )
 
+(define-private (calculate-max-borrow (collateral-value-usd uint))
+  ;; Calculate maximum borrow amount based on collateral value and LTV ratio
+  (/ (* collateral-value-usd LTV_RATIO) RATIO_PRECISION)
+)
+
 (define-private (calculate-health-factor (collateral-value-usd uint) (total-owed uint))
   (if (is-eq total-owed u0)
     u0
