@@ -2,7 +2,7 @@
 ;; Core borrow/repay logic with interest accrual
 ;; Optimized for gas efficiency
 
-(define-constant ERR-NOT-AUTHORIZED (err u400))
+(define-constant ERR-NOT-AUTHORIZED (err u400)) ;; Error for unauthorized access
 (define-constant ERR-ZERO-AMOUNT (err u401))
 (define-constant ERR-INSUFFICIENT-COLLATERAL (err u402))
 (define-constant ERR-NO-ACTIVE-LOAN (err u403))
