@@ -2,6 +2,7 @@
 ;; Core borrow/repay logic with interest accrual
 ;; Optimized for gas efficiency: price caching, helper functions, validation helpers
 ;; Adds loan activity tracking and borrower event history
+;; Version: 2.0 with event tracking
 
 (define-constant ERR-NOT-AUTHORIZED (err u400)) ;; Error for unauthorized access
 (define-constant ERR-ZERO-AMOUNT (err u401)) ;; Error for zero amount inputs
