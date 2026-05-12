@@ -45,3 +45,7 @@ The event history feature preserves event records even after a loan is closed, a
 ## Migration Guide
 
 Existing contracts using the lending-pool do not require changes. The loan activity tracking feature is backward compatible and adds new read-only functions without modifying existing behavior.
+
+## Performance Considerations
+
+Event recording adds minimal gas cost to borrow, repay, and liquidate operations. Event retrieval functions are read-only and do not consume gas when called from off-chain clients.
