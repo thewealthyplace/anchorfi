@@ -49,3 +49,7 @@ Existing contracts using the lending-pool do not require changes. The loan activ
 ## Performance Considerations
 
 Event recording adds minimal gas cost to borrow, repay, and liquidate operations. Event retrieval functions are read-only and do not consume gas when called from off-chain clients.
+
+## Security Considerations
+
+Loan event data is publicly readable and cannot be modified or deleted once recorded. This ensures immutable audit trails but requires careful consideration of data privacy for sensitive borrower information.
