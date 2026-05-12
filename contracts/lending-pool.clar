@@ -49,8 +49,11 @@
   (contract-call? .oracle get-price)
 )
 
-(define-private (calculate-max-borrow (collateral-value-usd uint))
-  (/ (* collateral-value-usd LTV_RATIO) RATIO_PRECISION)
+(define-private (calculate-health-factor (collateral-value-usd uint) (total-owed uint))
+  (if (is-eq total-owed u0)
+    u0
+    (/ (* collateral-value-usd RATIO_PRECISION) total-owed)
+  )
 )
 
 (define-private (calculate-interest (principal-amount uint) (blocks-elapsed uint))
@@ -169,10 +172,7 @@
         (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
         (total-owed (+ (get principal-amount loan) (get interest-accrued loan)))
       )
-        (if (is-eq total-owed u0)
-          (ok u0)
-          (ok (/ (* collateral-value-usd RATIO_PRECISION) total-owed))
-        )
+        (ok (calculate-health-factor collateral-value-usd total-owed))
       )
       e (err e)
     )
