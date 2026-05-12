@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 21.x, 22.x, 23.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install
+        run: npm install anchorfi-sdk --no-save
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Run oracle test
+        run: npm run test:oracle
+
+      - name: Run ausd token test
+        run: npm run test:ausd
+
+      - name: Run vault test
+        run: npm run test:vault
+
+      - name: Run lending pool test
+        run: npm run test:lending-pool
+
+      - name: Run liquidation test
+        run: npm run test:liquidation
