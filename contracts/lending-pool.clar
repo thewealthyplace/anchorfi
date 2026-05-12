@@ -188,7 +188,7 @@
   (match (get-stx-price)
     price
     (let ((collateral-value-usd (stx-to-usd collateral-amount price)))
-      (ok (/ (* collateral-value-usd LTV_RATIO) RATIO_PRECISION))
+      (ok (calculate-max-borrow collateral-value-usd))
     )
     e (err e)
   )
