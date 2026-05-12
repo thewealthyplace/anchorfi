@@ -72,9 +72,9 @@
   (/ (* stx-amount price) u1000000)
 )
 
-(define-private (calculate-max-borrow (collateral-value-usd uint))
-  ;; Calculate maximum borrow amount based on collateral value and LTV ratio
-  (/ (* collateral-value-usd LTV_RATIO) RATIO_PRECISION)
+(define-private (validate-borrow (amount uint) (max-allowed uint))
+  ;; Validate that borrow amount is positive and within limits
+  (and (> amount u0) (<= amount max-allowed))
 )
 
 (define-private (calculate-health-factor (collateral-value-usd uint) (total-owed uint))
@@ -117,9 +117,7 @@
     (collateral-value-usd (stx-to-usd collateral-amount price))
     (max-borrow (calculate-max-borrow collateral-value-usd))
   )
-    (asserts! (> amount u0) ERR-ZERO-AMOUNT)
-    (asserts! (> collateral-amount u0) ERR-ZERO-AMOUNT)
-    (asserts! (<= amount max-borrow) ERR-INSUFFICIENT-COLLATERAL)
+    (asserts! (validate-borrow amount max-borrow) ERR-INSUFFICIENT-COLLATERAL)
     (asserts! (is-none (map-get? loans tx-sender)) ERR-NOT-AUTHORIZED)
 
     (try! (contract-call? .collateral-vault lock-collateral tx-sender collateral-amount))
