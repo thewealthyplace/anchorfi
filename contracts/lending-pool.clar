@@ -162,6 +162,14 @@
   )
 )
 
+(define-read-only (get-loan-event (borrower principal) (index uint))
+  ;; Get a loan event by borrower and event index
+  (match (map-get? loan-event { borrower: borrower, index: index })
+    event (ok (some event))
+    (ok none)
+  )
+)
+
 (define-private (calculate-interest (principal-amount uint) (blocks-elapsed uint))
   ;; Calculate accrued interest: principal * rate * time / precision
   ;; Rate is per block, precision is 1e6 for 6 decimal places
