@@ -65,6 +65,13 @@
   )
 )
 
+(define-private (stx-to-usd (stx-amount uint) (price uint))
+  ;; Convert STX amount to USD value
+  ;; price is in USD with 6 decimal precision, stx in microSTX (6 decimals)
+  ;; result is in micro-aUSD (6 decimals)
+  (/ (* stx-amount price) u1000000)
+)
+
 (define-private (calculate-health-factor (collateral-value-usd uint) (total-owed uint))
   (if (is-eq total-owed u0)
     u0
