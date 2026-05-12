@@ -18,7 +18,7 @@
 (define-constant INTEREST_RATE_PER_BLOCK u10) ;; 0.001% per block (~5% APR at 10min blocks)
 (define-constant INTEREST_PRECISION u1000000) ;; Precision for interest calculations (1e6)
 
-(define-data-var contract-owner principal tx-sender)
+(define-data-var contract-owner principal tx-sender) ;; Contract owner address
 (define-data-var oracle-contract principal tx-sender)
 (define-data-var vault-contract principal tx-sender)
 (define-data-var ausd-contract principal tx-sender)
