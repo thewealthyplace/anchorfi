@@ -1,3 +1,3 @@
 # Optimization Notes for Lending Pool
 
-1. Initial optimization plan
+1. Initial optimization plan2. Optimization step 2
