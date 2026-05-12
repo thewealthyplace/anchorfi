@@ -120,7 +120,9 @@
     (asserts! (validate-borrow amount max-borrow) ERR-INSUFFICIENT-COLLATERAL)
     (asserts! (is-none (map-get? loans tx-sender)) ERR-NOT-AUTHORIZED)
 
+    ;; Lock collateral in vault
     (try! (contract-call? .collateral-vault lock-collateral tx-sender collateral-amount))
+    ;; Mint aUSD tokens
     (try! (contract-call? .ausd-token mint amount tx-sender))
 
     (map-set loans tx-sender {
