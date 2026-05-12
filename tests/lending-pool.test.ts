@@ -68,7 +68,17 @@ describe("lending-pool", () => {
     simnet.callPublicFn("lending-pool", "repay", [Cl.uint(BORROW_AMOUNT)], wallet1);
     const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1);
     expect(result).toBeOk(Cl.uint(2));
+    it("tracks separate borrower histories independently", () => {
+    setupProtocol();
+    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
+    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet2);
+    const { result: count1 } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1);
+    const { result: count2 } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet2)], wallet2);
+    expect(count1).toBeOk(Cl.uint(1));
+    expect(count2).toBeOk(Cl.uint(1));
   });
+
+});
 
 });
 
