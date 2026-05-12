@@ -3,7 +3,7 @@
 ;; Optimized for gas efficiency
 
 (define-constant ERR-NOT-AUTHORIZED (err u400)) ;; Error for unauthorized access
-(define-constant ERR-ZERO-AMOUNT (err u401))
+(define-constant ERR-ZERO-AMOUNT (err u401)) ;; Error for zero amount inputs
 (define-constant ERR-INSUFFICIENT-COLLATERAL (err u402))
 (define-constant ERR-NO-ACTIVE-LOAN (err u403))
 (define-constant ERR-OVERPAYMENT (err u404))
