@@ -72,9 +72,9 @@
   (/ (* stx-amount price) u1000000)
 )
 
-(define-private (validate-borrow (amount uint) (max-allowed uint))
-  ;; Validate that borrow amount is positive and within limits
-  (and (> amount u0) (<= amount max-allowed))
+(define-private (validate-repay (amount uint) (total-owed uint))
+  ;; Validate that repay amount is positive and not over total owed
+  (and (> amount u0) (<= amount total-owed))
 )
 
 (define-private (calculate-health-factor (collateral-value-usd uint) (total-owed uint))
@@ -144,8 +144,7 @@
     (updated-loan (unwrap! (map-get? loans tx-sender) ERR-NO-ACTIVE-LOAN))
     (total-owed (+ (get principal-amount updated-loan) (get interest-accrued updated-loan)))
   )
-    (asserts! (> amount u0) ERR-ZERO-AMOUNT)
-    (asserts! (<= amount total-owed) ERR-OVERPAYMENT)
+    (asserts! (validate-repay amount total-owed) ERR-OVERPAYMENT)
 
     (try! (contract-call? .ausd-token burn amount tx-sender))
 
