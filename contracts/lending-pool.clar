@@ -86,6 +86,7 @@
 )
 
 (define-private (accrue-interest (borrower principal))
+  ;; Accrue interest for a borrower's loan
   (match (map-get? loans borrower)
     loan
     (let (
