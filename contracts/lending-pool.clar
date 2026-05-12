@@ -42,6 +42,21 @@
   }
 ) ;; Map of borrower to loan details
 
+(define-map loan-event-count
+  principal
+  uint
+) ;; Number of events recorded for each borrower
+
+(define-map loan-event
+  { borrower: principal, index: uint }
+  {
+    action-type: uint,
+    action-amount: uint,
+    action-block: uint,
+    total-debt: uint
+  }
+) ;; Historical loan event entries for borrowers
+
 (define-public (configure (oracle principal) (vault principal) (ausd principal))
   ;; Configure contract dependencies
   ;; Only callable by contract owner
