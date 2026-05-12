@@ -207,6 +207,7 @@
 )
 
 (define-read-only (get-total-borrowed)
+  ;; Get total borrowed amount across all loans
   (ok (var-get total-borrowed))
 )
 
