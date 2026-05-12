@@ -122,6 +122,8 @@
 )
 
 (define-public (repay (amount uint))
+  ;; Repay loan by burning aUSD
+  ;; Unlocks collateral if fully repaid
   (let (
     (loan (unwrap! (map-get? loans tx-sender) ERR-NO-ACTIVE-LOAN))
     (accrued (accrue-interest tx-sender))
