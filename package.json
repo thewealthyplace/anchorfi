@@ -8,7 +8,13 @@
   "scripts": {
     "test": "vitest run",
     "test:report": "vitest run -- --coverage --costs",
-    "test:watch": "chokidar \"tests/**/*.ts\" \"contracts/**/*.clar\" -c \"npm run test:report\""
+    "test:watch": "chokidar \"tests/**/*.ts\" \"contracts/**/*.clar\" -c \"npm run test:report\"",
+    "test:oracle": "vitest run tests/oracle.test.ts",
+    "test:ausd": "vitest run tests/ausd-token.test.ts",
+    "test:vault": "vitest run tests/collateral-vault.test.ts",
+    "test:lending-pool": "vitest run tests/lending-pool.test.ts",
+    "test:liquidation": "vitest run tests/liquidation.test.ts",
+    "typecheck": "tsc --noEmit"
   },
   "author": "",
   "license": "ISC",
