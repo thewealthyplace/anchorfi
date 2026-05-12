@@ -189,7 +189,9 @@
                             (/ (* (get collateral-locked loan) LIQUIDATION_BONUS) RATIO_PRECISION)))
   )
     (asserts! (< health-factor LIQUIDATION_THRESHOLD) ERR-HEALTHY-POSITION)
+    ;; Burn debt
     (try! (contract-call? .ausd-token burn total-owed tx-sender))
+    ;; Seize collateral
     (try! (contract-call? .collateral-vault seize-collateral borrower
             (if (<= collateral-to-seize (get collateral-locked loan)) collateral-to-seize (get collateral-locked loan)) tx-sender))
     (map-delete loans borrower)
