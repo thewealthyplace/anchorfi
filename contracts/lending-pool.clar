@@ -71,6 +71,8 @@
 )
 
 (define-private (calculate-interest (principal-amount uint) (blocks-elapsed uint))
+  ;; Calculate accrued interest: principal * rate * time / precision
+  ;; Rate is per block, precision is 1e6 for 6 decimal places
   (/ (* principal-amount (* INTEREST_RATE_PER_BLOCK blocks-elapsed)) INTEREST_PRECISION)
 )
 
