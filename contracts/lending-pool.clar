@@ -143,7 +143,7 @@
   ;; Unlocks collateral if fully repaid
   (let (
     (loan (unwrap! (map-get? loans tx-sender) ERR-NO-ACTIVE-LOAN))
-    (accrued (accrue-interest tx-sender))
+    (accrued (accrue-interest tx-sender)) ;; Accrue interest before repayment
     (updated-loan (unwrap! (map-get? loans tx-sender) ERR-NO-ACTIVE-LOAN))
     (total-owed (+ (get principal-amount updated-loan) (get interest-accrued updated-loan)))
   )
