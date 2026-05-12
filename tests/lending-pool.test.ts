@@ -35,7 +35,12 @@ describe("lending-pool", () => {
     simnet.callPublicFn("lending-pool", "repay", [Cl.uint(BORROW_AMOUNT)], wallet1);
     const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1);
     expect(result).toBeOk(Cl.uint(2));
+    it("returns zero loan event count for borrower without loans", () => {
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(Cl.uint(0));
   });
+
+});
 
 });
 
