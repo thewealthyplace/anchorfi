@@ -281,7 +281,8 @@
     ;; Seize collateral
     (try! (contract-call? .collateral-vault seize-collateral borrower
             (if (<= collateral-to-seize (get collateral-locked loan)) collateral-to-seize (get collateral-locked loan)) tx-sender))
-    ;; Remove loan record
+    ;; Record liquidation event and remove loan
+    (record-loan-event borrower LOAN-EVENT-LIQUIDATE total-owed u0)
     (map-delete loans borrower)
     (var-set total-borrowed (- (var-get total-borrowed) (get principal-amount loan)))
     (ok true)
