@@ -73,3 +73,9 @@ for (let i = 0; i < eventCount; i++) {
   console.log(`Action: ${event.actionType}, Amount: ${event.actionAmount}`);
 }
 ```
+
+## Changelog
+
+- Added loan event tracking maps and functions
+- Integrated event recording in borrow/repay/liquidate flows
+- Added read-only accessors for event history
