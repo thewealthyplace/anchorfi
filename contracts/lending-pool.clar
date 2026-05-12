@@ -163,6 +163,7 @@
                            (- amount (get interest-accrued updated-loan))
                            u0))
       )
+        ;; Update loan with partial payment
         (map-set loans tx-sender (merge updated-loan {
           principal-amount: (- (get principal-amount updated-loan) principal-paid),
           interest-accrued: (- (get interest-accrued updated-loan) interest-paid)
