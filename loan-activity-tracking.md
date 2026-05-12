@@ -28,3 +28,7 @@ Loan actions are recorded during borrow, repay, and liquidate flows. Each action
 ## Testing Plan
 
 The feature includes coverage for event counts after borrow, repay, and liquidation, plus retrieval by index and summary queries.
+
+## Developer Notes
+
+The event history feature preserves event records even after a loan is closed, allowing auditors and interfaces to retrieve complete borrower history.
