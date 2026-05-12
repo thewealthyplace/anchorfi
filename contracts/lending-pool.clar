@@ -212,6 +212,7 @@
 )
 
 (define-read-only (get-max-borrow (collateral-amount uint))
+  ;; Calculate maximum borrow amount for given collateral
   (match (get-stx-price)
     price
     (let ((collateral-value-usd (stx-to-usd collateral-amount price)))
