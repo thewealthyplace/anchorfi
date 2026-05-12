@@ -41,3 +41,7 @@ The event history feature preserves event records even after a loan is closed, a
 - `get-loan-event (borrower principal, index uint)`: Returns the event details at the specified index
 - `get-last-loan-event (borrower principal)`: Returns the most recent loan event for a borrower
 - `get-loan-event-summary (borrower principal)`: Returns a summary of all loan events for a borrower
+
+## Migration Guide
+
+Existing contracts using the lending-pool do not require changes. The loan activity tracking feature is backward compatible and adds new read-only functions without modifying existing behavior.
