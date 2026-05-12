@@ -35,7 +35,7 @@
     opened-at-block: uint,
     last-accrual-block: uint
   }
-)
+) ;; Map of borrower to loan details
 
 (define-public (configure (oracle principal) (vault principal) (ausd principal))
   ;; Configure contract dependencies
