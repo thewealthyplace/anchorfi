@@ -125,6 +125,7 @@
     ;; Mint aUSD tokens
     (try! (contract-call? .ausd-token mint amount tx-sender))
 
+    ;; Create loan record
     (map-set loans tx-sender {
       principal-amount: amount,
       interest-accrued: u0,
