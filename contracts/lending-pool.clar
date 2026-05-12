@@ -8,7 +8,7 @@
 (define-constant ERR-NO-ACTIVE-LOAN (err u403)) ;; Error for no active loan
 (define-constant ERR-OVERPAYMENT (err u404)) ;; Error for overpayment
 (define-constant ERR-ORACLE-ERROR (err u405)) ;; Error for oracle failure
-(define-constant ERR-HEALTHY-POSITION (err u406))
+(define-constant ERR-HEALTHY-POSITION (err u406)) ;; Error for healthy position in liquidation
 
 ;; LTV = 70%, Liquidation threshold = 80%, Liquidation bonus = 10%
 (define-constant LTV_RATIO u700)           ;; 70.0%
