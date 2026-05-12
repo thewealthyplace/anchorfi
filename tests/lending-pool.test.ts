@@ -56,7 +56,15 @@ describe("lending-pool", () => {
     simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
     const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event", [Cl.principal(wallet1), Cl.uint(0)], wallet1);
     expect(result).toBeOk(Cl.some(expect.anything()));
+    it("returns the last loan event after repayment", () => {
+    setupProtocol();
+    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
+    simnet.callPublicFn("lending-pool", "repay", [Cl.uint(100_000_000)], wallet1);
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-last-loan-event", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
   });
+
+});
 
 });
 
