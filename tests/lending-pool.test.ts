@@ -79,7 +79,14 @@ describe("lending-pool", () => {
     it("returns none when querying last event for borrower without loan history", () => {
     const { result } = simnet.callReadOnlyFn("lending-pool", "get-last-loan-event", [Cl.principal(wallet1)], wallet1);
     expect(result).toBeOk(Cl.none());
+    it("returns loan event summary after borrow", () => {
+    setupProtocol();
+    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-summary", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
   });
+
+});
 
 });
 
