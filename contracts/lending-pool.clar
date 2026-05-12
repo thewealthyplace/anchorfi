@@ -236,19 +236,26 @@
         (try! (contract-call? .collateral-vault unlock-collateral tx-sender (get collateral-locked updated-loan)))
         (map-delete loans tx-sender)
         (var-set total-borrowed (- (var-get total-borrowed) (get principal-amount updated-loan)))
+        ;; Record full repayment event with zero remaining debt
+        (record-loan-event tx-sender LOAN-EVENT-REPAY amount u0)
       )
       (let (
         (interest-paid (if (<= amount (get interest-accrued updated-loan)) amount (get interest-accrued updated-loan)))
         (principal-paid (if (> amount (get interest-accrued updated-loan))
                            (- amount (get interest-accrued updated-loan))
                            u0))
+        (remaining-principal (- (get principal-amount updated-loan) principal-paid))
+        (remaining-interest (- (get interest-accrued updated-loan) interest-paid))
+        (new-total-owed (+ remaining-principal remaining-interest))
       )
         ;; Update loan with partial payment
         (map-set loans tx-sender (merge updated-loan {
-          principal-amount: (- (get principal-amount updated-loan) principal-paid),
-          interest-accrued: (- (get interest-accrued updated-loan) interest-paid)
+          principal-amount: remaining-principal,
+          interest-accrued: remaining-interest
         }))
         (var-set total-borrowed (- (var-get total-borrowed) principal-paid))
+        ;; Record partial repayment event with remaining debt
+        (record-loan-event tx-sender LOAN-EVENT-REPAY amount new-total-owed)
       )
     )
     (ok amount)
