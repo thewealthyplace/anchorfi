@@ -78,6 +78,7 @@
 )
 
 (define-private (calculate-health-factor (collateral-value-usd uint) (total-owed uint))
+  ;; Calculate health factor: collateral_value / total_owed * precision
   (if (is-eq total-owed u0)
     u0
     (/ (* collateral-value-usd RATIO_PRECISION) total-owed)
