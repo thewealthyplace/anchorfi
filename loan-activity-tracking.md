@@ -57,3 +57,7 @@ Loan event data is publicly readable and cannot be modified or deleted once reco
 ## Future Enhancements
 
 Potential future improvements include event filtering by date ranges, pagination for large event histories, and integration with off-chain analytics platforms.
+
+## Troubleshooting
+
+If event counts appear incorrect, verify that all borrow, repay, and liquidate operations are calling `record-loan-event`. Check contract deployment and ensure maps are properly initialized.
