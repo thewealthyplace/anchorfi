@@ -155,6 +155,8 @@
 )
 
 (define-public (liquidate (borrower principal))
+  ;; Liquidate an undercollateralized loan
+  ;; Seizes collateral and burns debt
   (let (
     (accrued (accrue-interest borrower))
     (loan (unwrap! (map-get? loans borrower) ERR-NO-ACTIVE-LOAN))
