@@ -185,7 +185,7 @@
     (price (unwrap! (get-stx-price) ERR-ORACLE-ERROR))
     (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
     (total-owed (+ (get principal-amount loan) (get interest-accrued loan)))
-    (health-factor (calculate-health-factor collateral-value-usd total-owed))
+    (health-factor (calculate-health-factor collateral-value-usd total-owed)) ;; Check if position is unhealthy
     (collateral-to-seize (+ (get collateral-locked loan)
                             (/ (* (get collateral-locked loan) LIQUIDATION_BONUS) RATIO_PRECISION)))
   )
