@@ -1,6 +1,8 @@
 ;; AnchorFi Lending Pool
 ;; Core borrow/repay logic with interest accrual
 ;; Optimized for gas efficiency: price caching, helper functions, validation helpers
+;; Adds loan activity tracking and borrower event history
+;; Version: 2.0 with event tracking
 
 (define-constant ERR-NOT-AUTHORIZED (err u400)) ;; Error for unauthorized access
 (define-constant ERR-ZERO-AMOUNT (err u401)) ;; Error for zero amount inputs
@@ -9,6 +11,10 @@
 (define-constant ERR-OVERPAYMENT (err u404)) ;; Error for overpayment
 (define-constant ERR-ORACLE-ERROR (err u405)) ;; Error for oracle failure
 (define-constant ERR-HEALTHY-POSITION (err u406)) ;; Error for healthy position in liquidation
+
+(define-constant LOAN-EVENT-BORROW u1) ;; Loan opened / borrow event
+(define-constant LOAN-EVENT-REPAY u2) ;; Loan repayment event
+(define-constant LOAN-EVENT-LIQUIDATE u3) ;; Loan liquidation event
 
 ;; LTV = 70%, Liquidation threshold = 80%, Liquidation bonus = 10%
 (define-constant LTV_RATIO u700)           ;; 70.0% loan-to-value ratio
@@ -36,6 +42,21 @@
     last-accrual-block: uint
   }
 ) ;; Map of borrower to loan details
+
+(define-map loan-event-count
+  principal
+  uint
+) ;; Number of events recorded for each borrower
+
+(define-map loan-event
+  { borrower: principal, index: uint }
+  {
+    action-type: uint,
+    action-amount: uint,
+    action-block: uint,
+    total-debt: uint
+  }
+) ;; Historical loan event entries for borrowers
 
 (define-public (configure (oracle principal) (vault principal) (ausd principal))
   ;; Configure contract dependencies
@@ -82,6 +103,87 @@
   (if (is-eq total-owed u0)
     u0
     (/ (* collateral-value-usd RATIO_PRECISION) total-owed)
+  )
+)
+
+(define-private (get-next-loan-event-index (borrower principal))
+  ;; Determine next index for borrower loan event history
+  (match (map-get? loan-event-count borrower)
+    count count
+    u0
+  )
+)
+
+(define-private (record-loan-event (borrower principal) (action-type uint) (action-amount uint) (total-debt uint))
+  ;; Record a loan activity event in borrower history
+  (let (
+    (next-index (get-next-loan-event-index borrower))
+    (event-key { borrower: borrower, index: next-index })
+  )
+    (map-set loan-event-count borrower (+ next-index u1))
+    (map-set loan-event event-key {
+      action-type: action-type,
+      action-amount: action-amount,
+      action-block: stacks-block-height,
+      total-debt: total-debt
+    })
+    true
+  )
+)
+
+(define-private (lookup-loan-event (borrower principal) (index uint))
+  ;; Retrieve a specific loan event by borrower and index
+  (match (map-get? loan-event { borrower: borrower, index: index })
+    event (ok event)
+    (err u403)
+  )
+)
+
+(define-public (get-loan-event-count (borrower principal))
+  ;; Get number of recorded loan events for a borrower
+  (ok (match (map-get? loan-event-count borrower)
+        count count
+        u0
+      ))
+)
+
+(define-public (get-last-loan-event (borrower principal))
+  ;; Get the last recorded loan event for a borrower
+  (let ((count (match (map-get? loan-event-count borrower)
+                 c c
+                 u0
+               )))
+    (if (is-eq count u0)
+      (ok none)
+      (match (map-get? loan-event { borrower: borrower, index: (- count u1) })
+        event (ok (some event))
+        (err u403)
+      )
+    )
+  )
+)
+
+(define-read-only (get-loan-event-summary (borrower principal))
+  ;; Get borrower loan event summary including event count and last event
+  (let ((count (match (map-get? loan-event-count borrower)
+                 c c
+                 u0
+               )))
+    (if (is-eq count u0)
+      (ok none)
+      (match (map-get? loan-event { borrower: borrower, index: (- count u1) })
+        event (ok (some { event-count: count, last-event: event }))
+        (err u403)
+      )
+    )
+  )
+)
+
+(define-read-only (get-loan-event (borrower principal) (index uint))
+  ;; Get a loan event by borrower and event index
+  (match (map-get? loan-event { borrower: borrower, index: index })
+    event (ok (some event))
+    (ok none)
   )
 )
 
@@ -134,6 +236,8 @@
       last-accrual-block: stacks-block-height
     })
     (var-set total-borrowed (+ (var-get total-borrowed) amount))
+    ;; Record borrow event for borrower activity tracking
+    (record-loan-event tx-sender LOAN-EVENT-BORROW amount amount)
     (ok amount)
   )
 )
@@ -157,19 +261,26 @@
         (try! (contract-call? .collateral-vault unlock-collateral tx-sender (get collateral-locked updated-loan)))
         (map-delete loans tx-sender)
         (var-set total-borrowed (- (var-get total-borrowed) (get principal-amount updated-loan)))
+        ;; Record full repayment event with zero remaining debt
+        (record-loan-event tx-sender LOAN-EVENT-REPAY amount u0)
       )
       (let (
         (interest-paid (if (<= amount (get interest-accrued updated-loan)) amount (get interest-accrued updated-loan)))
         (principal-paid (if (> amount (get interest-accrued updated-loan))
                            (- amount (get interest-accrued updated-loan))
                            u0))
+        (remaining-principal (- (get principal-amount updated-loan) principal-paid))
+        (remaining-interest (- (get interest-accrued updated-loan) interest-paid))
+        (new-total-owed (+ remaining-principal remaining-interest))
       )
         ;; Update loan with partial payment
         (map-set loans tx-sender (merge updated-loan {
-          principal-amount: (- (get principal-amount updated-loan) principal-paid),
-          interest-accrued: (- (get interest-accrued updated-loan) interest-paid)
+          principal-amount: remaining-principal,
+          interest-accrued: remaining-interest
         }))
         (var-set total-borrowed (- (var-get total-borrowed) principal-paid))
+        ;; Record partial repayment event with remaining debt
+        (record-loan-event tx-sender LOAN-EVENT-REPAY amount new-total-owed)
       )
     )
     (ok amount)
@@ -195,7 +306,8 @@
     ;; Seize collateral
     (try! (contract-call? .collateral-vault seize-collateral borrower
             (if (<= collateral-to-seize (get collateral-locked loan)) collateral-to-seize (get collateral-locked loan)) tx-sender))
-    ;; Remove loan record
+    ;; Record liquidation event and remove loan
+    (record-loan-event borrower LOAN-EVENT-LIQUIDATE total-owed u0)
     (map-delete loans borrower)
     (var-set total-borrowed (- (var-get total-borrowed) (get principal-amount loan)))
     (ok true)
