@@ -24,7 +24,14 @@ describe("lending-pool", () => {
   it("total borrowed starts at zero", () => {
     const { result } = simnet.callReadOnlyFn("lending-pool", "get-total-borrowed", [], deployer);
     expect(result).toBeOk(Cl.uint(0));
+    it("records a single borrow event", () => {
+    setupProtocol();
+    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(Cl.uint(1));
   });
+
+});
 
   it("returns max borrow for given collateral", () => {
     simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
