@@ -49,10 +49,8 @@
   (contract-call? .oracle get-price)
 )
 
-(define-private (stx-to-usd (stx-amount uint) (price uint))
-  ;; price is in USD with 6 decimal precision, stx in microSTX (6 decimals)
-  ;; result is in micro-aUSD (6 decimals)
-  (/ (* stx-amount price) u1000000)
+(define-private (calculate-max-borrow (collateral-value-usd uint))
+  (/ (* collateral-value-usd LTV_RATIO) RATIO_PRECISION)
 )
 
 (define-private (calculate-interest (principal-amount uint) (blocks-elapsed uint))
@@ -80,7 +78,7 @@
   (let (
     (price (unwrap! (get-stx-price) ERR-ORACLE-ERROR))
     (collateral-value-usd (stx-to-usd collateral-amount price))
-    (max-borrow (/ (* collateral-value-usd LTV_RATIO) RATIO_PRECISION))
+    (max-borrow (calculate-max-borrow collateral-value-usd))
   )
     (asserts! (> amount u0) ERR-ZERO-AMOUNT)
     (asserts! (> collateral-amount u0) ERR-ZERO-AMOUNT)
