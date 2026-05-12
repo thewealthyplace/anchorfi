@@ -180,7 +180,7 @@
   ;; Liquidate an undercollateralized loan
   ;; Seizes collateral and burns debt
   (let (
-    (accrued (accrue-interest borrower))
+    (accrued (accrue-interest borrower)) ;; Accrue interest before liquidation
     (loan (unwrap! (map-get? loans borrower) ERR-NO-ACTIVE-LOAN))
     (price (unwrap! (get-stx-price) ERR-ORACLE-ERROR))
     (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
