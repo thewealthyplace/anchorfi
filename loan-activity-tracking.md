@@ -85,3 +85,6 @@ This feature depends on the oracle contract for block height timestamps and the 
 ## Error Handling
 
 Event recording failures do not block loan operations. If event storage fails, the transaction continues but logs an error.
+## Testing Strategy
+
+Unit tests cover event recording, retrieval, and summary functions. Integration tests verify end-to-end loan flows with event tracking.
