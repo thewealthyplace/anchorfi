@@ -14,7 +14,7 @@
 (define-constant LTV_RATIO u700)           ;; 70.0% loan-to-value ratio
 (define-constant LIQUIDATION_THRESHOLD u800) ;; 80.0% liquidation threshold
 (define-constant LIQUIDATION_BONUS u100)    ;; 10.0% liquidation bonus
-(define-constant RATIO_PRECISION u1000)
+(define-constant RATIO_PRECISION u1000) ;; Precision for ratio calculations (1000 = 100%)
 (define-constant INTEREST_RATE_PER_BLOCK u10) ;; 0.001% per block (~5% APR at 10min blocks)
 (define-constant INTEREST_PRECISION u1000000)
 
