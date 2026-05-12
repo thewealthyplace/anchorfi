@@ -211,6 +211,8 @@
       last-accrual-block: stacks-block-height
     })
     (var-set total-borrowed (+ (var-get total-borrowed) amount))
+    ;; Record borrow event for borrower activity tracking
+    (record-loan-event tx-sender LOAN-EVENT-BORROW amount amount)
     (ok amount)
   )
 )
