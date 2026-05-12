@@ -24,7 +24,7 @@
 (define-data-var ausd-contract principal tx-sender) ;; aUSD token contract address
 (define-data-var total-borrowed uint u0) ;; Total amount borrowed across all loans
 (define-data-var last-price uint u0) ;; Cached STX price from oracle
-(define-data-var last-price-block uint u0)
+(define-data-var last-price-block uint u0) ;; Block height when price was last cached
 
 (define-map loans
   principal
