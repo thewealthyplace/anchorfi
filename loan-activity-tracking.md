@@ -79,3 +79,6 @@ for (let i = 0; i < eventCount; i++) {
 - Added loan event tracking maps and functions
 - Integrated event recording in borrow/repay/liquidate flows
 - Added read-only accessors for event history
+## Dependencies
+
+This feature depends on the oracle contract for block height timestamps and the collateral-vault for loan state validation.
