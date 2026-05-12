@@ -38,6 +38,8 @@
 )
 
 (define-public (configure (oracle principal) (vault principal) (ausd principal))
+  ;; Configure contract dependencies
+  ;; Only callable by contract owner
   (begin
     (asserts! (is-eq tx-sender (var-get contract-owner)) ERR-NOT-AUTHORIZED)
     (var-set oracle-contract oracle)
