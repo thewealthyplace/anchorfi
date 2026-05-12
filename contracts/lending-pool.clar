@@ -20,7 +20,7 @@
 
 (define-data-var contract-owner principal tx-sender) ;; Contract owner address
 (define-data-var oracle-contract principal tx-sender) ;; Oracle contract address
-(define-data-var vault-contract principal tx-sender)
+(define-data-var vault-contract principal tx-sender) ;; Collateral vault contract address
 (define-data-var ausd-contract principal tx-sender)
 (define-data-var total-borrowed uint u0)
 (define-data-var last-price uint u0)
