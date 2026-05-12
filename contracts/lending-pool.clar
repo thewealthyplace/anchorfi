@@ -94,6 +94,8 @@
 )
 
 (define-public (borrow (amount uint) (collateral-amount uint))
+  ;; Borrow aUSD against STX collateral
+  ;; Locks collateral and mints aUSD
   (let (
     (price (unwrap! (get-stx-price) ERR-ORACLE-ERROR))
     (collateral-value-usd (stx-to-usd collateral-amount price))
