@@ -108,7 +108,7 @@
 (define-private (get-next-loan-event-index (borrower principal))
   ;; Determine next index for borrower loan event history
   (match (map-get? loan-event-count borrower)
-    count (+ count u1)
+    count count
     u0
   )
 )
@@ -119,7 +119,7 @@
     (next-index (get-next-loan-event-index borrower))
     (event-key { borrower: borrower, index: next-index })
   )
-    (map-set loan-event-count borrower next-index)
+    (map-set loan-event-count borrower (+ next-index u1))
     (map-set loan-event event-key {
       action-type: action-type,
       action-amount: action-amount,
