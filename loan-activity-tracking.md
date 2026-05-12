@@ -61,3 +61,15 @@ Potential future improvements include event filtering by date ranges, pagination
 ## Troubleshooting
 
 If event counts appear incorrect, verify that all borrow, repay, and liquidate operations are calling `record-loan-event`. Check contract deployment and ensure maps are properly initialized.
+
+## Integration Examples
+
+To retrieve a borrower's loan history in a frontend application:
+
+```typescript
+const eventCount = await contract.getLoanEventCount(borrowerAddress);
+for (let i = 0; i < eventCount; i++) {
+  const event = await contract.getLoanEvent(borrowerAddress, i);
+  console.log(`Action: ${event.actionType}, Amount: ${event.actionAmount}`);
+}
+```
