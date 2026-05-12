@@ -162,6 +162,22 @@
   )
 )
 
+(define-read-only (get-loan-event-summary (borrower principal))
+  ;; Get borrower loan event summary including event count and last event
+  (let ((count (match (map-get? loan-event-count borrower)
+                 c c
+                 u0
+               )))
+    (if (is-eq count u0)
+      (ok none)
+      (match (map-get? loan-event { borrower: borrower, index: (- count u1) })
+        event (ok (some { event-count: count, last-event: event }))
+        (err u403)
+      )
+    )
+  )
+)
+
 (define-read-only (get-loan-event (borrower principal) (index uint))
   ;; Get a loan event by borrower and event index
   (match (map-get? loan-event { borrower: borrower, index: index })
