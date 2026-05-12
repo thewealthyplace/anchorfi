@@ -1,6 +1,6 @@
 ;; AnchorFi Lending Pool
 ;; Core borrow/repay logic with interest accrual
-;; Optimized for gas efficiency
+;; Optimized for gas efficiency: price caching, helper functions, validation helpers
 
 (define-constant ERR-NOT-AUTHORIZED (err u400)) ;; Error for unauthorized access
 (define-constant ERR-ZERO-AMOUNT (err u401)) ;; Error for zero amount inputs
