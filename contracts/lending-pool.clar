@@ -152,6 +152,7 @@
 
     (if (is-eq amount total-owed)
       (begin
+        ;; Unlock all collateral
         (try! (contract-call? .collateral-vault unlock-collateral tx-sender (get collateral-locked updated-loan)))
         (map-delete loans tx-sender)
         (var-set total-borrowed (- (var-get total-borrowed) (get principal-amount updated-loan)))
