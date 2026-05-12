@@ -88,3 +88,6 @@ Event recording failures do not block loan operations. If event storage fails, t
 ## Testing Strategy
 
 Unit tests cover event recording, retrieval, and summary functions. Integration tests verify end-to-end loan flows with event tracking.
+## Deployment Notes
+
+Deploy the updated lending-pool contract after oracle and collateral-vault contracts are deployed.
