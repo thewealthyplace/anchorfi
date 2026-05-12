@@ -52,6 +52,15 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
   });
 
+  it("records borrow history event for the borrower", () => {
+    setupProtocol();
+    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
+    const count = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1).result;
+    expect(count).toBeOk(Cl.uint(1));
+    const event = simnet.callReadOnlyFn("lending-pool", "get-last-loan-event", [Cl.principal(wallet1)], wallet1).result;
+    expect(event).toBeOk(Cl.some(expect.anything()));
+  });
+
   it("cannot borrow over LTV limit", () => {
     setupProtocol();
     const { result } = simnet.callPublicFn(
