@@ -32,3 +32,12 @@ The feature includes coverage for event counts after borrow, repay, and liquidat
 ## Developer Notes
 
 The event history feature preserves event records even after a loan is closed, allowing auditors and interfaces to retrieve complete borrower history.
+
+## API Reference
+
+### Read-Only Functions
+
+- `get-loan-event-count (borrower principal)`: Returns the total number of loan events for a borrower
+- `get-loan-event (borrower principal, index uint)`: Returns the event details at the specified index
+- `get-last-loan-event (borrower principal)`: Returns the most recent loan event for a borrower
+- `get-loan-event-summary (borrower principal)`: Returns a summary of all loan events for a borrower
