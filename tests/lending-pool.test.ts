@@ -51,7 +51,14 @@ describe("lending-pool", () => {
     simnet.callPublicFn("lending-pool", "liquidate", [Cl.principal(wallet1)], wallet2);
     const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet2);
     expect(result).toBeOk(Cl.uint(2));
+    it("retrieves borrow event by index after borrow", () => {
+    setupProtocol();
+    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event", [Cl.principal(wallet1), Cl.uint(0)], wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
   });
+
+});
 
 });
 
