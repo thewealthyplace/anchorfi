@@ -187,7 +187,7 @@
     (total-owed (+ (get principal-amount loan) (get interest-accrued loan)))
     (health-factor (calculate-health-factor collateral-value-usd total-owed)) ;; Check if position is unhealthy
     (collateral-to-seize (+ (get collateral-locked loan)
-                            (/ (* (get collateral-locked loan) LIQUIDATION_BONUS) RATIO_PRECISION)))
+                            (/ (* (get collateral-locked loan) LIQUIDATION_BONUS) RATIO_PRECISION))) ;; Include bonus
   )
     (asserts! (< health-factor LIQUIDATION_THRESHOLD) ERR-HEALTHY-POSITION)
     ;; Burn debt
