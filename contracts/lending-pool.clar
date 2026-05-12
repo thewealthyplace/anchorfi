@@ -16,7 +16,7 @@
 (define-constant LIQUIDATION_BONUS u100)    ;; 10.0% liquidation bonus
 (define-constant RATIO_PRECISION u1000) ;; Precision for ratio calculations (1000 = 100%)
 (define-constant INTEREST_RATE_PER_BLOCK u10) ;; 0.001% per block (~5% APR at 10min blocks)
-(define-constant INTEREST_PRECISION u1000000)
+(define-constant INTEREST_PRECISION u1000000) ;; Precision for interest calculations (1e6)
 
 (define-data-var contract-owner principal tx-sender)
 (define-data-var oracle-contract principal tx-sender)
