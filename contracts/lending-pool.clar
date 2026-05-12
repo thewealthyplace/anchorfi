@@ -11,7 +11,7 @@
 (define-constant ERR-HEALTHY-POSITION (err u406)) ;; Error for healthy position in liquidation
 
 ;; LTV = 70%, Liquidation threshold = 80%, Liquidation bonus = 10%
-(define-constant LTV_RATIO u700)           ;; 70.0%
+(define-constant LTV_RATIO u700)           ;; 70.0% loan-to-value ratio
 (define-constant LIQUIDATION_THRESHOLD u800) ;; 80.0%
 (define-constant LIQUIDATION_BONUS u100)    ;; 10.0%
 (define-constant RATIO_PRECISION u1000)
