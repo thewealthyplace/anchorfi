@@ -11,6 +11,10 @@
 (define-constant ERR-ORACLE-ERROR (err u405)) ;; Error for oracle failure
 (define-constant ERR-HEALTHY-POSITION (err u406)) ;; Error for healthy position in liquidation
 
+(define-constant LOAN-EVENT-BORROW u1) ;; Loan opened / borrow event
+(define-constant LOAN-EVENT-REPAY u2) ;; Loan repayment event
+(define-constant LOAN-EVENT-LIQUIDATE u3) ;; Loan liquidation event
+
 ;; LTV = 70%, Liquidation threshold = 80%, Liquidation bonus = 10%
 (define-constant LTV_RATIO u700)           ;; 70.0% loan-to-value ratio
 (define-constant LIQUIDATION_THRESHOLD u800) ;; 80.0% liquidation threshold
