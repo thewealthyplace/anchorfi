@@ -76,7 +76,12 @@ describe("lending-pool", () => {
     const { result: count2 } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet2)], wallet2);
     expect(count1).toBeOk(Cl.uint(1));
     expect(count2).toBeOk(Cl.uint(1));
+    it("returns none when querying last event for borrower without loan history", () => {
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-last-loan-event", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(Cl.none());
   });
+
+});
 
 });
 
