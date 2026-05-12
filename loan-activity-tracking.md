@@ -82,3 +82,6 @@ for (let i = 0; i < eventCount; i++) {
 ## Dependencies
 
 This feature depends on the oracle contract for block height timestamps and the collateral-vault for loan state validation.
+## Error Handling
+
+Event recording failures do not block loan operations. If event storage fails, the transaction continues but logs an error.
