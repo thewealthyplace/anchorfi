@@ -23,6 +23,8 @@
 (define-data-var vault-contract principal tx-sender)
 (define-data-var ausd-contract principal tx-sender)
 (define-data-var total-borrowed uint u0)
+(define-data-var last-price uint u0)
+(define-data-var last-price-block uint u0)
 
 (define-map loans
   principal
@@ -46,7 +48,19 @@
 )
 
 (define-private (get-stx-price)
-  (contract-call? .oracle get-price)
+  (let (
+    (current-block stacks-block-height)
+    (cached-block (var-get last-price-block))
+  )
+    (if (and (> cached-block u0) (<= (- current-block cached-block) u10))
+      (ok (var-get last-price))
+      (let ((new-price (contract-call? .oracle get-price)))
+        (var-set last-price (unwrap! new-price (err u0)))
+        (var-set last-price-block current-block)
+        new-price
+      )
+    )
+  )
 )
 
 (define-private (calculate-health-factor (collateral-value-usd uint) (total-owed uint))
