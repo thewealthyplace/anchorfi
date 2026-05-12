@@ -20,3 +20,7 @@ The lending-pool contract exposes read-only accessors for loan event history:
 - `get-loan-event`
 - `get-last-loan-event`
 - `get-loan-event-summary`
+
+## Event Recording
+
+Loan actions are recorded during borrow, repay, and liquidate flows. Each action is appended to borrower event history with a new index.
