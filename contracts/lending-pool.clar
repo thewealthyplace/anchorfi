@@ -189,6 +189,7 @@
 )
 
 (define-read-only (get-health-factor (borrower principal))
+  ;; Calculate health factor: collateral_value / total_owed * precision
   (match (map-get? loans borrower)
     loan
     (match (get-stx-price)
