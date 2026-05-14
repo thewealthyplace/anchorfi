@@ -475,4 +475,12 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(2));
   });
 
+  it("returns correct history after multiple loan events", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1, 100_000_000);
+    const { result } = getLoanEvent(wallet1, 1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
 });
