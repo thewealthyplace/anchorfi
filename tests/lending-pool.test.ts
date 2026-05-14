@@ -399,4 +399,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.some(expect.anything()));
   });
 
+  it("allows a second borrower to open a loan independently", () => {
+    setupProtocol();
+    borrowLoan(wallet2);
+    const { result } = getLoanEventCount(wallet2);
+    expect(result).toBeOk(Cl.uint(1));
+  });
+
 });
