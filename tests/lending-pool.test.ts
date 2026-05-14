@@ -433,4 +433,10 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(3));
   });
 
+  it("returns the correct max borrow for 500 STX collateral", () => {
+    const halfCollateral = COLLATERAL / 2;
+    const { result } = getMaxBorrow(halfCollateral);
+    expect(result).toBeOk(Cl.uint(700_000_000));
+  });
+
 });
