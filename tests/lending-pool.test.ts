@@ -243,4 +243,10 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.some(expect.anything()));
   });
 
+  it("rejects borrowing zero aUSD", () => {
+    setupProtocol();
+    const { result } = borrowLoan(wallet1, 0);
+    expect(result).toBeErr(Cl.uint(402));
+  });
+
 });
