@@ -424,4 +424,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
   });
 
+  it("keeps historical event count after a borrower reopens a loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    borrowLoan(wallet1);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(3));
+  });
+
 });
