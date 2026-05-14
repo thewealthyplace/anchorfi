@@ -390,4 +390,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.some(expect.anything()));
   });
 
+  it("stores the total debt in the liquidation event", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
 });
