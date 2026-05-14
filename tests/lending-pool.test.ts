@@ -4,7 +4,6 @@ import {
   deployer,
   wallet1,
   wallet2,
-  STX_PRICE,
   COLLATERAL,
   BORROW_AMOUNT,
   setupProtocol,
@@ -144,7 +143,7 @@ describe("lending-pool", () => {
     borrowLoan(wallet1);
     simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
     const { result } = liquidateLoan(wallet1);
-    expect(result).toBeOk(true);
+    expect(result).toBeOk(Cl.bool(true));
   });
 
   it("increments event count after repayment", () => {
@@ -488,7 +487,7 @@ describe("lending-pool", () => {
     borrowLoan(wallet2);
     simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
     const { result } = liquidateLoan(wallet2);
-    expect(result).toBeOk(true);
+    expect(result).toBeOk(Cl.bool(true));
   });
 
   it("supports borrow and repay flows for two different borrowers", () => {
