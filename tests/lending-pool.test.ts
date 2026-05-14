@@ -446,4 +446,9 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(expect.any(Number)));
   });
 
+  it("returns none for last event when there is no history", () => {
+    const { result } = getLastLoanEvent(wallet2);
+    expect(result).toBeOk(Cl.none());
+  });
+
 });
