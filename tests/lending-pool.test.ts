@@ -101,4 +101,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.none());
   });
 
+  it("returns the active loan after borrow", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(expect.anything());
+  });
+
 });
