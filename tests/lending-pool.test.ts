@@ -460,4 +460,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(2));
   });
 
+  it("scales maximum borrow with changing oracle price", () => {
+    const { result: baseMax } = getMaxBorrow(COLLATERAL);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(4_000_000)], deployer);
+    const { result: newMax } = getMaxBorrow(COLLATERAL);
+    expect(newMax).not.toEqual(baseMax);
+  });
+
 });
