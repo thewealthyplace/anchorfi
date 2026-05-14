@@ -298,4 +298,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+  it("returns a positive health factor after a loan is opened", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getHealthFactor(wallet1);
+    expect(result).toBeOk(expect.any(Number));
+  });
+
 });
