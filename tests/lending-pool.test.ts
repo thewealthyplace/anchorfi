@@ -164,4 +164,12 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(2));
   });
 
+  it("returns a repay event as the last event after full repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
 });
