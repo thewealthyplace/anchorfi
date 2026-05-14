@@ -368,4 +368,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.some(expect.anything()));
   });
 
+  it("records a block height for loan events", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
 });
