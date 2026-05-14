@@ -123,4 +123,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+  it("decreases total borrowed after liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = getTotalBorrowed();
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
