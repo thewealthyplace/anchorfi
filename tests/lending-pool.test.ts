@@ -181,4 +181,9 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.some(expect.anything()));
   });
 
+  it("returns zero loan events for a borrower with no history", () => {
+    const { result } = getLoanEventCount(wallet2);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
