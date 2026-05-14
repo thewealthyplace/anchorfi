@@ -451,4 +451,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.none());
   });
 
+  it("counts multiple events for the same borrower", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    repayLoan(wallet1, 0);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(2));
+  });
+
 });
