@@ -193,4 +193,14 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.none());
   });
 
+  it("keeps separate loan histories for different borrowers", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    borrowLoan(wallet2);
+    const { result: count1 } = getLoanEventCount(wallet1);
+    const { result: count2 } = getLoanEventCount(wallet2);
+    expect(count1).toBeOk(Cl.uint(1));
+    expect(count2).toBeOk(Cl.uint(1));
+  });
+
 });
