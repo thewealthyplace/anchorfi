@@ -305,4 +305,12 @@ describe("lending-pool", () => {
     expect(result).toBeOk(expect.any(Number));
   });
 
+  it("maintains a growing event count across borrow and repay", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(2));
+  });
+
 });
