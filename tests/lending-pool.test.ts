@@ -115,4 +115,12 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
   });
 
+  it("decreases total borrowed after full repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getTotalBorrowed();
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
