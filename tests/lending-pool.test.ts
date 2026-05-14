@@ -293,4 +293,9 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.some(expect.anything()));
   });
 
+  it("returns zero max borrow for zero collateral", () => {
+    const { result } = getMaxBorrow(0);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
