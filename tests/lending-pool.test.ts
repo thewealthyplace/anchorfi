@@ -96,4 +96,9 @@ describe("lending-pool", () => {
     expect(result).toBeOk(expect.anything());
   });
 
+  it("returns none from get-loan for a borrower without a loan", () => {
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(Cl.none());
+  });
+
 });
