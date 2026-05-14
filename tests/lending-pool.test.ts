@@ -491,4 +491,15 @@ describe("lending-pool", () => {
     expect(result).toBeOk(true);
   });
 
+  it("supports borrow and repay flows for two different borrowers", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    borrowLoan(wallet2);
+    repayLoan(wallet1);
+    const { result: count1 } = getLoanEventCount(wallet1);
+    const { result: count2 } = getLoanEventCount(wallet2);
+    expect(count1).toBeOk(Cl.uint(2));
+    expect(count2).toBeOk(Cl.uint(1));
+  });
+
 });
