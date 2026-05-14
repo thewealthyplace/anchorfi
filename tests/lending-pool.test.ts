@@ -66,4 +66,11 @@ describe("lending-pool", () => {
     expect(result).toBeErr(Cl.uint(407));
   });
 
+  it("returns loan event summary after borrow", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getLoanEventSummary(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
 });
