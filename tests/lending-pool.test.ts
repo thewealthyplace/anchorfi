@@ -483,4 +483,12 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.some(expect.anything()));
   });
 
+  it("allows a second borrower to be liquidated independently", () => {
+    setupProtocol();
+    borrowLoan(wallet2);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    const { result } = liquidateLoan(wallet2);
+    expect(result).toBeOk(true);
+  });
+
 });
