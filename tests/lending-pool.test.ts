@@ -353,4 +353,11 @@ describe("lending-pool", () => {
     expect(newMax).not.toEqual(highPrice);
   });
 
+  it("uses a separate borrower record for wallet2", () => {
+    setupProtocol();
+    borrowLoan(wallet2);
+    const { result } = getLoanEventCount(wallet2);
+    expect(result).toBeOk(Cl.uint(1));
+  });
+
 });
