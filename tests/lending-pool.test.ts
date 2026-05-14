@@ -360,4 +360,12 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(1));
   });
 
+  it("returns loan event summary after a partial repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1, 100_000_000);
+    const { result } = getLoanEventSummary(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
 });
