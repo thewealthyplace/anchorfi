@@ -203,4 +203,12 @@ describe("lending-pool", () => {
     expect(count2).toBeOk(Cl.uint(1));
   });
 
+  it("allows a borrower to reopen a loan after fully repaying", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = borrowLoan(wallet1);
+    expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
+  });
+
 });
