@@ -155,4 +155,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(2));
   });
 
+  it("increments event count after liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(2));
+  });
+
 });
