@@ -254,4 +254,10 @@ describe("lending-pool", () => {
     expect(result).toBeErr(Cl.uint(403));
   });
 
+  it("allows borrowing the exact maximum amount", () => {
+    setupProtocol();
+    const { result } = borrowLoan(wallet1, 1_400_000_000);
+    expect(result).toBeOk(Cl.uint(1_400_000_000));
+  });
+
 });
