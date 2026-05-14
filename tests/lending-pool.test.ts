@@ -375,4 +375,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.some(expect.anything()));
   });
 
+  it("stores the borrow amount in the first loan event", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getLoanEvent(wallet1, 0);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
 });
