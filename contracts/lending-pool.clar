@@ -11,6 +11,7 @@
 (define-constant ERR-OVERPAYMENT (err u404)) ;; Error for overpayment
 (define-constant ERR-ORACLE-ERROR (err u405)) ;; Error for oracle failure
 (define-constant ERR-HEALTHY-POSITION (err u406)) ;; Error for healthy position in liquidation
+(define-constant ERR-ACTIVE-LOAN (err u407)) ;; Error for borrower with an existing loan
 
 (define-constant LOAN-EVENT-BORROW u1) ;; Loan opened / borrow event
 (define-constant LOAN-EVENT-REPAY u2) ;; Loan repayment event
@@ -96,6 +97,16 @@
 (define-private (validate-repay (amount uint) (total-owed uint))
   ;; Validate that repay amount is positive and not over total owed
   (and (> amount u0) (<= amount total-owed))
+)
+
+(define-private (validate-borrow (amount uint) (max-borrow uint))
+  ;; Borrow amount must be positive and within the maximum allowed by collateral
+  (and (> amount u0) (<= amount max-borrow))
+)
+
+(define-private (calculate-max-borrow (collateral-value-usd uint))
+  ;; Calculate maximum borrowable aUSD for collateral value using LTV ratio
+  (/ (* collateral-value-usd LTV_RATIO) RATIO_PRECISION)
 )
 
 (define-private (calculate-health-factor (collateral-value-usd uint) (total-owed uint))
@@ -220,7 +231,7 @@
     (max-borrow (calculate-max-borrow collateral-value-usd))
   )
     (asserts! (validate-borrow amount max-borrow) ERR-INSUFFICIENT-COLLATERAL)
-    (asserts! (is-none (map-get? loans tx-sender)) ERR-NOT-AUTHORIZED)
+    (asserts! (is-none (map-get? loans tx-sender)) ERR-ACTIVE-LOAN)
 
     ;; Lock collateral in vault
     (try! (contract-call? .collateral-vault lock-collateral tx-sender collateral-amount))
