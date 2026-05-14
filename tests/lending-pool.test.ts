@@ -186,4 +186,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+  it("returns none when requesting a missing loan event index", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getLoanEvent(wallet1, 5);
+    expect(result).toBeOk(Cl.none());
+  });
+
 });
