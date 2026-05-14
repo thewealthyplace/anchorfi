@@ -320,4 +320,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.some(expect.anything()));
   });
 
+  it("reduces total borrowed by the loan principal on liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = getTotalBorrowed();
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
