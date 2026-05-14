@@ -236,4 +236,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.none());
   });
 
+  it("returns a loan event summary after borrow", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getLoanEventSummary(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
 });
