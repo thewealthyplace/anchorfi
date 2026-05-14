@@ -249,4 +249,9 @@ describe("lending-pool", () => {
     expect(result).toBeErr(Cl.uint(402));
   });
 
+  it("rejects repayment without an active loan", () => {
+    const { result } = repayLoan(wallet1);
+    expect(result).toBeErr(Cl.uint(403));
+  });
+
 });
