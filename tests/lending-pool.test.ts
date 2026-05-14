@@ -108,4 +108,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(expect.anything());
   });
 
+  it("increases total borrowed after opening a loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getTotalBorrowed();
+    expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
+  });
+
 });
