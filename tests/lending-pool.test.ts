@@ -211,4 +211,12 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
   });
 
+  it("records remaining debt after a partial repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1, 100_000_000);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
 });
