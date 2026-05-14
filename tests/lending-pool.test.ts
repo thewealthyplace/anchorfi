@@ -415,4 +415,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.some(expect.anything()));
   });
 
+  it("allows a borrower to open a new loan after liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = borrowLoan(wallet1);
+    expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
+  });
+
 });
