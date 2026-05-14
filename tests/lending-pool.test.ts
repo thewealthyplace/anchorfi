@@ -59,4 +59,11 @@ describe("lending-pool", () => {
     const { result } = getLastLoanEvent(wallet1);
     expect(result).toBeOk(Cl.none());
   });
+  it("rejects a second borrow attempt while a loan is still active", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = borrowLoan(wallet1, 100_000_000);
+    expect(result).toBeErr(Cl.uint(407));
+  });
+
 });
