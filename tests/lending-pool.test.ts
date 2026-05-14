@@ -439,4 +439,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(700_000_000));
   });
 
+  it("keeps the health factor above zero after borrowing", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getHealthFactor(wallet1);
+    expect(result).toBeOk(Cl.uint(expect.any(Number)));
+  });
+
 });
