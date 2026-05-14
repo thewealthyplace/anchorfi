@@ -139,4 +139,12 @@ describe("lending-pool", () => {
     expect(result).toBeErr(Cl.uint(406));
   });
 
+  it("allows liquidation after the collateral price drops", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    const { result } = liquidateLoan(wallet1);
+    expect(result).toBeOk(true);
+  });
+
 });
