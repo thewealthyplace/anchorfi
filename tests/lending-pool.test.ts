@@ -467,4 +467,12 @@ describe("lending-pool", () => {
     expect(newMax).not.toEqual(baseMax);
   });
 
+  it("allows interest-only partial repayment without closing the loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1, 10_000);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(2));
+  });
+
 });
