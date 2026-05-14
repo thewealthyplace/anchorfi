@@ -132,4 +132,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+  it("prevents liquidation when the position is still healthy", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = liquidateLoan(wallet1);
+    expect(result).toBeErr(Cl.uint(406));
+  });
+
 });
