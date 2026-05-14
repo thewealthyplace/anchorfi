@@ -147,4 +147,12 @@ describe("lending-pool", () => {
     expect(result).toBeOk(true);
   });
 
+  it("increments event count after repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(2));
+  });
+
 });
