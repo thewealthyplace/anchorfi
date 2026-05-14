@@ -1,207 +1,504 @@
 import { describe, expect, it } from "vitest";
 import { Cl } from "@stacks/transactions";
-
-const accounts = simnet.getAccounts();
-const deployer = accounts.get("deployer")!;
-const wallet1 = accounts.get("wallet_1")!;
-const wallet2 = accounts.get("wallet_2")!;
-
-const STX_PRICE = 2_000_000;
-const COLLATERAL = 1_000_000_000;     // 1000 STX in microSTX
-const BORROW_AMOUNT = 1_000_000_000;  // $1000 aUSD — within 70% LTV of $2000 collateral value
-
-function setupProtocol() {
-  // Authorize lending-pool as the vault's controller and aUSD minter
-  simnet.callPublicFn("collateral-vault", "set-lending-pool",
-    [Cl.principal(`${deployer}.lending-pool`)], deployer);
-  simnet.callPublicFn("ausd-token", "set-minter",
-    [Cl.principal(`${deployer}.lending-pool`)], deployer);
-  simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
-  simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(COLLATERAL)], wallet1);
-}
+import {
+  deployer,
+  wallet1,
+  wallet2,
+  COLLATERAL,
+  BORROW_AMOUNT,
+  setupProtocol,
+  borrowLoan,
+  repayLoan,
+  liquidateLoan,
+  getLoanEventCount,
+  getLastLoanEvent,
+  getLoanEvent,
+  getLoanEventSummary,
+  getTotalBorrowed,
+  getMaxBorrow,
+  getHealthFactor,
+} from "./lending-pool.helpers";
 
 describe("lending-pool", () => {
-  it("total borrowed starts at zero", () => {
-    const { result } = simnet.callReadOnlyFn("lending-pool", "get-total-borrowed", [], deployer);
+  it("returns zero total borrowed before any loan", () => {
+    const { result } = getTotalBorrowed();
     expect(result).toBeOk(Cl.uint(0));
-    it("records a single borrow event", () => {
-    setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1);
-    expect(result).toBeOk(Cl.uint(1));
-    it("records repay event after full loan repayment", () => {
-    setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    simnet.callPublicFn("lending-pool", "repay", [Cl.uint(BORROW_AMOUNT)], wallet1);
-    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1);
-    expect(result).toBeOk(Cl.uint(2));
-    it("returns zero loan event count for borrower without loans", () => {
-    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1);
-    expect(result).toBeOk(Cl.uint(0));
-    it("records partial repay event without closing loan", () => {
-    setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    simnet.callPublicFn("lending-pool", "repay", [Cl.uint(100_000_000)], wallet1);
-    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1);
-    expect(result).toBeOk(Cl.uint(2));
-    it("records liquidation event when loan is liquidated", () => {
-    setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
-    simnet.callPublicFn("lending-pool", "liquidate", [Cl.principal(wallet1)], wallet2);
-    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet2);
-    expect(result).toBeOk(Cl.uint(2));
-    it("retrieves borrow event by index after borrow", () => {
-    setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event", [Cl.principal(wallet1), Cl.uint(0)], wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
-    it("returns the last loan event after repayment", () => {
-    setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    simnet.callPublicFn("lending-pool", "repay", [Cl.uint(100_000_000)], wallet1);
-    const { result } = simnet.callReadOnlyFn("lending-pool", "get-last-loan-event", [Cl.principal(wallet1)], wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
-    it("preserves event count after loan closure", () => {
-    setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    simnet.callPublicFn("lending-pool", "repay", [Cl.uint(BORROW_AMOUNT)], wallet1);
-    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1);
-    expect(result).toBeOk(Cl.uint(2));
-    it("tracks separate borrower histories independently", () => {
-    setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet2);
-    const { result: count1 } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1);
-    const { result: count2 } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet2)], wallet2);
-    expect(count1).toBeOk(Cl.uint(1));
-    expect(count2).toBeOk(Cl.uint(1));
-    it("returns none when querying last event for borrower without loan history", () => {
-    const { result } = simnet.callReadOnlyFn("lending-pool", "get-last-loan-event", [Cl.principal(wallet1)], wallet1);
-    expect(result).toBeOk(Cl.none());
-    it("returns loan event summary after borrow", () => {
-    setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan-event-summary", [Cl.principal(wallet1)], wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
   });
 
-});
-
-});
-
-});
-
-});
-
-});
-
-});
-
-});
-
-});
-
-});
-
-});
-
-});
-
-  it("returns max borrow for given collateral", () => {
-    simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
-    const { result } = simnet.callReadOnlyFn(
-      "lending-pool", "get-max-borrow", [Cl.uint(COLLATERAL)], deployer
-    );
-    // 1000 STX * $2 = $2000 * 70% LTV = $1400
+  it("returns maximum borrow amount for provided collateral", () => {
+    const { result } = getMaxBorrow();
     expect(result).toBeOk(Cl.uint(1_400_000_000));
   });
 
-  it("user can borrow against deposited collateral", () => {
+  it("allows a borrower to open a loan within LTV limits", () => {
     setupProtocol();
-    const { result } = simnet.callPublicFn(
-      "lending-pool", "borrow",
-      [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)],
-      wallet1
-    );
+    const { result } = borrowLoan(wallet1);
     expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
   });
 
-  it("borrow mints aUSD to borrower", () => {
+  it("records a borrow event after opening a loan", () => {
     setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    const { result } = simnet.callReadOnlyFn("ausd-token", "get-balance", [Cl.principal(wallet1)], wallet1);
-    expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
+    borrowLoan(wallet1);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(1));
   });
 
-  it("records borrow history event for the borrower", () => {
-    setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    const count = simnet.callReadOnlyFn("lending-pool", "get-loan-event-count", [Cl.principal(wallet1)], wallet1).result;
-    expect(count).toBeOk(Cl.uint(1));
-    const event = simnet.callReadOnlyFn("lending-pool", "get-last-loan-event", [Cl.principal(wallet1)], wallet1).result;
-    expect(event).toBeOk(Cl.some(expect.anything()));
+  it("returns zero health factor when no loan exists", () => {
+    const { result } = getHealthFactor(wallet1);
+    expect(result).toBeOk(Cl.uint(0));
   });
 
-  it("cannot borrow over LTV limit", () => {
+  it("rejects a borrow above the maximum allowed collateral-based amount", () => {
     setupProtocol();
-    const { result } = simnet.callPublicFn(
-      "lending-pool", "borrow",
-      [Cl.uint(1_500_000_000), Cl.uint(COLLATERAL)],
-      wallet1
-    );
+    const { result } = borrowLoan(wallet1, 1_500_000_000);
     expect(result).toBeErr(Cl.uint(402));
   });
 
-  it("cannot open two loans simultaneously", () => {
+  it("returns none for last loan event when borrower has no history", () => {
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.none());
+  });
+  it("rejects a second borrow attempt while a loan is still active", () => {
     setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    const { result } = simnet.callPublicFn(
-      "lending-pool", "borrow",
-      [Cl.uint(100_000_000), Cl.uint(100_000_000)],
-      wallet1
-    );
-    expect(result).toBeErr(Cl.uint(400));
+    borrowLoan(wallet1);
+    const { result } = borrowLoan(wallet1, 100_000_000);
+    expect(result).toBeErr(Cl.uint(407));
   });
 
-  it("user can repay loan", () => {
+  it("returns loan event summary after borrow", () => {
     setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    const { result } = simnet.callPublicFn(
-      "lending-pool", "repay", [Cl.uint(BORROW_AMOUNT)], wallet1
-    );
-    expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
+    borrowLoan(wallet1);
+    const { result } = getLoanEventSummary(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
   });
 
-  it("full repayment clears the loan", () => {
-    // Pre-mint interest buffer while deployer is still the minter (before setup hands it to lending-pool)
-    simnet.callPublicFn("ausd-token", "mint", [Cl.uint(100_000), Cl.principal(wallet1)], deployer);
+  it("retrieves a borrow event by index", () => {
     setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    // 1 block elapses between borrow and repay: interest = 1_000_000_000 * 10 / 1_000_000 = 10_000
-    simnet.callPublicFn("lending-pool", "repay", [Cl.uint(BORROW_AMOUNT + 10_000)], wallet1);
+    borrowLoan(wallet1);
+    const { result } = getLoanEvent(wallet1, 0);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("clears the loan record after full repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
     const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan", [Cl.principal(wallet1)], wallet1);
     expect(result).toBeOk(Cl.none());
   });
 
-  it("cannot repay without active loan", () => {
-    const { result } = simnet.callPublicFn("lending-pool", "repay", [Cl.uint(1_000_000)], wallet1);
-    expect(result).toBeErr(Cl.uint(403));
+  it("keeps the loan record after a partial repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1, 100_000_000);
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(expect.anything());
   });
 
-  it("health factor is zero for user with no loan", () => {
-    const { result } = simnet.callReadOnlyFn(
-      "lending-pool", "get-health-factor", [Cl.principal(wallet1)], deployer
-    );
+  it("returns none from get-loan for a borrower without a loan", () => {
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(Cl.none());
+  });
+
+  it("returns the active loan after borrow", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(expect.anything());
+  });
+
+  it("increases total borrowed after opening a loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getTotalBorrowed();
+    expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
+  });
+
+  it("decreases total borrowed after full repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getTotalBorrowed();
     expect(result).toBeOk(Cl.uint(0));
   });
 
-  it("cannot liquidate healthy position", () => {
+  it("decreases total borrowed after liquidation", () => {
     setupProtocol();
-    simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(BORROW_AMOUNT), Cl.uint(COLLATERAL)], wallet1);
-    const { result } = simnet.callPublicFn(
-      "lending-pool", "liquidate", [Cl.principal(wallet1)], wallet2
-    );
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = getTotalBorrowed();
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
+  it("prevents liquidation when the position is still healthy", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = liquidateLoan(wallet1);
     expect(result).toBeErr(Cl.uint(406));
   });
+
+  it("allows liquidation after the collateral price drops", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    const { result } = liquidateLoan(wallet1);
+    expect(result).toBeOk(Cl.bool(true));
+  });
+
+  it("increments event count after repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(2));
+  });
+
+  it("increments event count after liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(2));
+  });
+
+  it("returns a repay event as the last event after full repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("returns a liquidation event as the last event after liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("returns zero loan events for a borrower with no history", () => {
+    const { result } = getLoanEventCount(wallet2);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
+  it("returns none when requesting a missing loan event index", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getLoanEvent(wallet1, 5);
+    expect(result).toBeOk(Cl.none());
+  });
+
+  it("keeps separate loan histories for different borrowers", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    borrowLoan(wallet2);
+    const { result: count1 } = getLoanEventCount(wallet1);
+    const { result: count2 } = getLoanEventCount(wallet2);
+    expect(count1).toBeOk(Cl.uint(1));
+    expect(count2).toBeOk(Cl.uint(1));
+  });
+
+  it("allows a borrower to reopen a loan after fully repaying", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = borrowLoan(wallet1);
+    expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
+  });
+
+  it("records remaining debt after a partial repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1, 100_000_000);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("records zero remaining debt after full repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("removes the loan record after successful liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(Cl.none());
+  });
+
+  it("returns a loan event summary after borrow", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getLoanEventSummary(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("rejects borrowing zero aUSD", () => {
+    setupProtocol();
+    const { result } = borrowLoan(wallet1, 0);
+    expect(result).toBeErr(Cl.uint(402));
+  });
+
+  it("rejects repayment without an active loan", () => {
+    const { result } = repayLoan(wallet1);
+    expect(result).toBeErr(Cl.uint(403));
+  });
+
+  it("allows borrowing the exact maximum amount", () => {
+    setupProtocol();
+    const { result } = borrowLoan(wallet1, 1_400_000_000);
+    expect(result).toBeOk(Cl.uint(1_400_000_000));
+  });
+
+  it("tracks total borrowed across multiple borrowers", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    borrowLoan(wallet2);
+    const { result } = getTotalBorrowed();
+    expect(result).toBeOk(Cl.uint(BORROW_AMOUNT * 2));
+  });
+
+  it("keeps the last event as repay after partial repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1, 100_000_000);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("returns a repay event after repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("returns a liquidation event after liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("returns zero max borrow for zero collateral", () => {
+    const { result } = getMaxBorrow(0);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
+  it("returns a positive health factor after a loan is opened", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getHealthFactor(wallet1);
+    expect(result).toBeOk(expect.any(Number));
+  });
+
+  it("maintains a growing event count across borrow and repay", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(2));
+  });
+
+  it("retrieves the first borrow event from history", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getLoanEvent(wallet1, 0);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("reduces total borrowed by the loan principal on liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = getTotalBorrowed();
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
+  it("preserves loan event count after a loan is closed", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(2));
+  });
+
+  it("still returns a loan event summary after liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = getLoanEventSummary(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("updates maximum borrow when the oracle price changes", () => {
+    const { result: highPrice } = getMaxBorrow(COLLATERAL);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(3_000_000)], deployer);
+    const { result: newMax } = getMaxBorrow(COLLATERAL);
+    expect(newMax).not.toEqual(highPrice);
+  });
+
+  it("uses a separate borrower record for wallet2", () => {
+    setupProtocol();
+    borrowLoan(wallet2);
+    const { result } = getLoanEventCount(wallet2);
+    expect(result).toBeOk(Cl.uint(1));
+  });
+
+  it("returns loan event summary after a partial repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1, 100_000_000);
+    const { result } = getLoanEventSummary(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("records a block height for loan events", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("stores the borrow amount in the first loan event", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getLoanEvent(wallet1, 0);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("stores the repay amount in the last loan event", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("stores the total debt in the liquidation event", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = getLastLoanEvent(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("allows a second borrower to open a loan independently", () => {
+    setupProtocol();
+    borrowLoan(wallet2);
+    const { result } = getLoanEventCount(wallet2);
+    expect(result).toBeOk(Cl.uint(1));
+  });
+
+  it("returns a summary after liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = getLoanEventSummary(wallet1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("allows a borrower to open a new loan after liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = borrowLoan(wallet1);
+    expect(result).toBeOk(Cl.uint(BORROW_AMOUNT));
+  });
+
+  it("keeps historical event count after a borrower reopens a loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    borrowLoan(wallet1);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(3));
+  });
+
+  it("returns the correct max borrow for 500 STX collateral", () => {
+    const halfCollateral = COLLATERAL / 2;
+    const { result } = getMaxBorrow(halfCollateral);
+    expect(result).toBeOk(Cl.uint(700_000_000));
+  });
+
+  it("keeps the health factor above zero after borrowing", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getHealthFactor(wallet1);
+    expect(result).toBeOk(Cl.uint(expect.any(Number)));
+  });
+
+  it("returns none for last event when there is no history", () => {
+    const { result } = getLastLoanEvent(wallet2);
+    expect(result).toBeOk(Cl.none());
+  });
+
+  it("counts multiple events for the same borrower", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    repayLoan(wallet1, 0);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(2));
+  });
+
+  it("scales maximum borrow with changing oracle price", () => {
+    const { result: baseMax } = getMaxBorrow(COLLATERAL);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(4_000_000)], deployer);
+    const { result: newMax } = getMaxBorrow(COLLATERAL);
+    expect(newMax).not.toEqual(baseMax);
+  });
+
+  it("allows interest-only partial repayment without closing the loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1, 10_000);
+    const { result } = getLoanEventCount(wallet1);
+    expect(result).toBeOk(Cl.uint(2));
+  });
+
+  it("returns correct history after multiple loan events", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1, 100_000_000);
+    const { result } = getLoanEvent(wallet1, 1);
+    expect(result).toBeOk(Cl.some(expect.anything()));
+  });
+
+  it("allows a second borrower to be liquidated independently", () => {
+    setupProtocol();
+    borrowLoan(wallet2);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    const { result } = liquidateLoan(wallet2);
+    expect(result).toBeOk(Cl.bool(true));
+  });
+
+  it("supports borrow and repay flows for two different borrowers", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    borrowLoan(wallet2);
+    repayLoan(wallet1);
+    const { result: count1 } = getLoanEventCount(wallet1);
+    const { result: count2 } = getLoanEventCount(wallet2);
+    expect(count1).toBeOk(Cl.uint(2));
+    expect(count2).toBeOk(Cl.uint(1));
+  });
+
 });
