@@ -260,4 +260,12 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(1_400_000_000));
   });
 
+  it("tracks total borrowed across multiple borrowers", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    borrowLoan(wallet2);
+    const { result } = getTotalBorrowed();
+    expect(result).toBeOk(Cl.uint(BORROW_AMOUNT * 2));
+  });
+
 });
