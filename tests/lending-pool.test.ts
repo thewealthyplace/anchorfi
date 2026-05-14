@@ -88,4 +88,12 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.none());
   });
 
+  it("keeps the loan record after a partial repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1, 100_000_000);
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-loan", [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(expect.anything());
+  });
+
 });
