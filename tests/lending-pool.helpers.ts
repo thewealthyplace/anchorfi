@@ -79,7 +79,8 @@ export function getTotalBorrowed() {
   return simnet.callReadOnlyFn("lending-pool", "get-total-borrowed", [], deployer);
 }
 
-export function getMaxBorrow(collateral = COLLATERAL) {
+export function getMaxBorrow(collateral = COLLATERAL, price = STX_PRICE) {
+  simnet.callPublicFn("oracle", "set-price", [Cl.uint(price)], deployer);
   return simnet.callReadOnlyFn("lending-pool", "get-max-borrow", [Cl.uint(collateral)], deployer);
 }
 
