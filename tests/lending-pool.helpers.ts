@@ -55,7 +55,7 @@ export function repayLoan(borrower = wallet1, amount?: number) {
     [Cl.uint(principal + accrued + pending)], borrower);
 }
 
-export function liquidateLoan(borrower = wallet1, liquidator = wallet2) {
+export function liquidateLoan(borrower = wallet1, liquidator = borrower) {
   return simnet.callPublicFn("lending-pool", "liquidate", [Cl.principal(borrower)], liquidator);
 }
 
