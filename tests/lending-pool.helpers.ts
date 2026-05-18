@@ -109,3 +109,7 @@ export function getTotalDebt(borrower = wallet1) {
 export function getEstimatedInterest(borrower = wallet1) {
   return simnet.callReadOnlyFn("lending-pool", "get-estimated-interest", [Cl.principal(borrower)], deployer);
 }
+
+export function isLiquidatable(borrower = wallet1) {
+  return simnet.callReadOnlyFn("lending-pool", "is-liquidatable", [Cl.principal(borrower)], deployer);
+}
