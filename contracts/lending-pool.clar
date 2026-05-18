@@ -392,3 +392,24 @@
     (ok u0)
   )
 )
+
+(define-read-only (is-liquidatable (borrower principal))
+  ;; Return true when the borrower's current health factor is below the liquidation threshold
+  (match (map-get? loans borrower)
+    loan
+    (match (contract-call? .oracle get-price)
+      price
+      (let (
+        (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
+        (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+        (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+        (total-owed (+ (get principal-amount loan) (get interest-accrued loan) pending-interest))
+        (health (calculate-health-factor collateral-value-usd total-owed))
+      )
+        (ok (< health LIQUIDATION_THRESHOLD))
+      )
+      e (err e)
+    )
+    (ok false)
+  )
+)
