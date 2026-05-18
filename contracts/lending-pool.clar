@@ -436,3 +436,33 @@
     (ok u0)
   )
 )
+
+(define-read-only (get-borrower-snapshot (borrower principal))
+  ;; Return a full position snapshot in a single call for efficient UI rendering
+  (match (map-get? loans borrower)
+    loan
+    (match (contract-call? .oracle get-price)
+      price
+      (let (
+        (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
+        (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+        (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+        (estimated-interest (+ (get interest-accrued loan) pending-interest))
+        (total-owed (+ (get principal-amount loan) estimated-interest))
+        (health (calculate-health-factor collateral-value-usd total-owed))
+      )
+        (ok (some {
+          principal: (get principal-amount loan),
+          collateral-locked: (get collateral-locked loan),
+          collateral-value-usd: collateral-value-usd,
+          estimated-interest: estimated-interest,
+          total-owed: total-owed,
+          health-factor: health,
+          is-liquidatable: (< health LIQUIDATION_THRESHOLD)
+        }))
+      )
+      e (err e)
+    )
+    (ok none)
+  )
+)
