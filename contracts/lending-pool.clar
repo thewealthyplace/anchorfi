@@ -378,3 +378,17 @@
     (ok u0)
   )
 )
+
+(define-read-only (get-estimated-interest (borrower principal))
+  ;; Return total interest (stored accrued + pending since last accrual block) without state change
+  (match (map-get? loans borrower)
+    loan
+    (let (
+      (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+      (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+    )
+      (ok (+ (get interest-accrued loan) pending-interest))
+    )
+    (ok u0)
+  )
+)
