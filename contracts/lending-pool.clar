@@ -305,7 +305,7 @@
   (let (
     (accrued (accrue-interest borrower)) ;; Accrue interest before liquidation
     (loan (unwrap! (map-get? loans borrower) ERR-NO-ACTIVE-LOAN))
-    (price (unwrap! (get-stx-price) ERR-ORACLE-ERROR))
+    (price (unwrap! (contract-call? .oracle get-price) ERR-ORACLE-ERROR))
     (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
     (total-owed (+ (get principal-amount loan) (get interest-accrued loan)))
     (health-factor (calculate-health-factor collateral-value-usd total-owed)) ;; Check if position is unhealthy
