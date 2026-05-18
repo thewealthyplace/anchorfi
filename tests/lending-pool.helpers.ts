@@ -117,3 +117,7 @@ export function isLiquidatable(borrower = wallet1) {
 export function getCollateralRatio(borrower = wallet1) {
   return simnet.callReadOnlyFn("lending-pool", "get-collateral-ratio", [Cl.principal(borrower)], deployer);
 }
+
+export function getBorrowerSnapshot(borrower = wallet1) {
+  return simnet.callReadOnlyFn("lending-pool", "get-borrower-snapshot", [Cl.principal(borrower)], deployer);
+}
