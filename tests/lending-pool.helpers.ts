@@ -9,7 +9,16 @@ export const STX_PRICE = 2_000_000;
 export const COLLATERAL = 1_000_000_000; // 1000 STX in microSTX
 export const BORROW_AMOUNT = 1_000_000_000; // $1000 aUSD
 
+// Extra aUSD minted per wallet so tests can repay principal + accrued interest.
+// The deployer is the initial minter before set-minter hands control to lending-pool.
+const INTEREST_RESERVE = 10_000_000;
+
 export function setupProtocol() {
+  // Mint interest reserve while deployer is still the minter
+  simnet.callPublicFn("ausd-token", "mint",
+    [Cl.uint(INTEREST_RESERVE), Cl.principal(wallet1)], deployer);
+  simnet.callPublicFn("ausd-token", "mint",
+    [Cl.uint(INTEREST_RESERVE), Cl.principal(wallet2)], deployer);
   simnet.callPublicFn(
     "collateral-vault",
     "set-lending-pool",
@@ -40,15 +49,20 @@ export function repayLoan(borrower = wallet1, amount?: number) {
   if (amount !== undefined) {
     return simnet.callPublicFn("lending-pool", "repay", [Cl.uint(amount)], borrower);
   }
-  // Compute exact total owed: get-total-debt gives debt at the current block;
-  // repay will accrue one more block of interest, so add that pending amount.
+  // Compute exact total owed so the repay closes the loan in a single call.
+  // repay() accrues interest for one additional block, so we include that here.
   const loanRaw = simnet.callReadOnlyFn("lending-pool", "get-loan",
     [Cl.principal(borrower)], deployer);
-  const loanSome = (loanRaw.result as ResponseOkCV).value as any;
-  const data = loanSome.value.data;
-  const principal = Number((data["principal-amount"] as UIntCV).value);
-  const accrued  = Number((data["interest-accrued"] as UIntCV).value);
-  const lastBlock = Number((data["last-accrual-block"] as UIntCV).value);
+  const loanOptional = (loanRaw.result as ResponseOkCV).value as any;
+  if (!loanOptional.value) {
+    // No active loan — call repay with 1 so it returns ERR-NO-ACTIVE-LOAN
+    return simnet.callPublicFn("lending-pool", "repay", [Cl.uint(1)], borrower);
+  }
+  // The clarinet SDK represents TupleCV as { type: "tuple", value: { key: { type, value } } }
+  const fields = loanOptional.value.value;
+  const principal = Number(fields["principal-amount"].value);
+  const accrued  = Number(fields["interest-accrued"].value);
+  const lastBlock = Number(fields["last-accrual-block"].value);
   const repayBlock = simnet.blockHeight + 1;
   const pending = Math.floor(principal * 10 * (repayBlock - lastBlock) / 1_000_000);
   return simnet.callPublicFn("lending-pool", "repay",
