@@ -105,3 +105,7 @@ export function getHealthFactor(borrower = wallet1) {
 export function getTotalDebt(borrower = wallet1) {
   return simnet.callReadOnlyFn("lending-pool", "get-total-debt", [Cl.principal(borrower)], deployer);
 }
+
+export function getEstimatedInterest(borrower = wallet1) {
+  return simnet.callReadOnlyFn("lending-pool", "get-estimated-interest", [Cl.principal(borrower)], deployer);
+}
