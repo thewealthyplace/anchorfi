@@ -18,6 +18,14 @@ import {
   getTotalBorrowed,
   getMaxBorrow,
   getHealthFactor,
+  getTotalDebt,
+  getEstimatedInterest,
+  isLiquidatable,
+  getCollateralRatio,
+  getBorrowerSnapshot,
+  getSafeBorrowAmount,
+  getLiquidationPrice,
+  getInterestRateInfo,
 } from "./lending-pool.helpers";
 
 describe("lending-pool", () => {
