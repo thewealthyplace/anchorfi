@@ -479,3 +479,24 @@
     e (err e)
   )
 )
+
+(define-read-only (get-liquidation-price (borrower principal))
+  ;; Return the oracle price at which this position becomes liquidatable
+  ;; Derived from: collateral_stx * price / 1e6 / total_owed < LIQUIDATION_THRESHOLD / RATIO_PRECISION
+  ;; => price < total_owed * 1e6 * LIQUIDATION_THRESHOLD / (collateral_stx * RATIO_PRECISION)
+  (match (map-get? loans borrower)
+    loan
+    (let (
+      (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+      (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+      (total-owed (+ (get principal-amount loan) (get interest-accrued loan) pending-interest))
+    )
+      (if (is-eq (get collateral-locked loan) u0)
+        (ok u0)
+        (ok (/ (* total-owed (* u1000000 LIQUIDATION_THRESHOLD))
+               (* (get collateral-locked loan) RATIO_PRECISION)))
+      )
+    )
+    (ok u0)
+  )
+)
