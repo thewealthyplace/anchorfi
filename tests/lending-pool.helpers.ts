@@ -1,4 +1,4 @@
-import { Cl } from "@stacks/transactions";
+import { Cl, ResponseOkCV, UIntCV } from "@stacks/transactions";
 
 const accounts = simnet.getAccounts();
 export const deployer = accounts.get("deployer")!;
@@ -36,8 +36,23 @@ export function borrowLoan(borrower = wallet1, amount = BORROW_AMOUNT, collatera
   );
 }
 
-export function repayLoan(borrower = wallet1, amount = BORROW_AMOUNT) {
-  return simnet.callPublicFn("lending-pool", "repay", [Cl.uint(amount)], borrower);
+export function repayLoan(borrower = wallet1, amount?: number) {
+  if (amount !== undefined) {
+    return simnet.callPublicFn("lending-pool", "repay", [Cl.uint(amount)], borrower);
+  }
+  // Compute exact total owed: get-total-debt gives debt at the current block;
+  // repay will accrue one more block of interest, so add that pending amount.
+  const loanRaw = simnet.callReadOnlyFn("lending-pool", "get-loan",
+    [Cl.principal(borrower)], deployer);
+  const loanSome = (loanRaw.result as ResponseOkCV).value as any;
+  const data = loanSome.value.data;
+  const principal = Number((data["principal-amount"] as UIntCV).value);
+  const accrued  = Number((data["interest-accrued"] as UIntCV).value);
+  const lastBlock = Number((data["last-accrual-block"] as UIntCV).value);
+  const repayBlock = simnet.blockHeight + 1;
+  const pending = Math.floor(principal * 10 * (repayBlock - lastBlock) / 1_000_000);
+  return simnet.callPublicFn("lending-pool", "repay",
+    [Cl.uint(principal + accrued + pending)], borrower);
 }
 
 export function liquidateLoan(borrower = wallet1, liquidator = wallet2) {
