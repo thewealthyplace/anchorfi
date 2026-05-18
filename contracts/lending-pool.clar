@@ -413,3 +413,26 @@
     (ok false)
   )
 )
+
+(define-read-only (get-collateral-ratio (borrower principal))
+  ;; Return current LTV ratio: total_debt / collateral_value * RATIO_PRECISION
+  (match (map-get? loans borrower)
+    loan
+    (match (contract-call? .oracle get-price)
+      price
+      (let (
+        (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
+        (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+        (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+        (total-owed (+ (get principal-amount loan) (get interest-accrued loan) pending-interest))
+      )
+        (if (is-eq collateral-value-usd u0)
+          (ok u0)
+          (ok (/ (* total-owed RATIO_PRECISION) collateral-value-usd))
+        )
+      )
+      e (err e)
+    )
+    (ok u0)
+  )
+)
