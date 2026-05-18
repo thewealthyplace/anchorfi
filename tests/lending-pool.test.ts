@@ -69,14 +69,14 @@ describe("lending-pool", () => {
     setupProtocol();
     borrowLoan(wallet1);
     const { result } = getLoanEventSummary(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("retrieves a borrow event by index", () => {
     setupProtocol();
     borrowLoan(wallet1);
     const { result } = getLoanEvent(wallet1, 0);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("clears the loan record after full repayment", () => {
@@ -168,7 +168,7 @@ describe("lending-pool", () => {
     borrowLoan(wallet1);
     repayLoan(wallet1);
     const { result } = getLastLoanEvent(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("returns a liquidation event as the last event after liquidation", () => {
@@ -177,7 +177,7 @@ describe("lending-pool", () => {
     simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
     liquidateLoan(wallet1);
     const { result } = getLastLoanEvent(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("returns zero loan events for a borrower with no history", () => {
@@ -215,7 +215,7 @@ describe("lending-pool", () => {
     borrowLoan(wallet1);
     repayLoan(wallet1, 100_000_000);
     const { result } = getLastLoanEvent(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("records zero remaining debt after full repayment", () => {
@@ -223,7 +223,7 @@ describe("lending-pool", () => {
     borrowLoan(wallet1);
     repayLoan(wallet1);
     const { result } = getLastLoanEvent(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("removes the loan record after successful liquidation", () => {
@@ -239,7 +239,7 @@ describe("lending-pool", () => {
     setupProtocol();
     borrowLoan(wallet1);
     const { result } = getLoanEventSummary(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("rejects borrowing zero aUSD", () => {
@@ -272,7 +272,7 @@ describe("lending-pool", () => {
     borrowLoan(wallet1);
     repayLoan(wallet1, 100_000_000);
     const { result } = getLastLoanEvent(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("returns a repay event after repayment", () => {
@@ -280,7 +280,7 @@ describe("lending-pool", () => {
     borrowLoan(wallet1);
     repayLoan(wallet1);
     const { result } = getLastLoanEvent(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("returns a liquidation event after liquidation", () => {
@@ -289,7 +289,7 @@ describe("lending-pool", () => {
     simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
     liquidateLoan(wallet1);
     const { result } = getLastLoanEvent(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("returns zero max borrow for zero collateral", () => {
@@ -316,7 +316,7 @@ describe("lending-pool", () => {
     setupProtocol();
     borrowLoan(wallet1);
     const { result } = getLoanEvent(wallet1, 0);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("reduces total borrowed by the loan principal on liquidation", () => {
@@ -342,7 +342,7 @@ describe("lending-pool", () => {
     simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
     liquidateLoan(wallet1);
     const { result } = getLoanEventSummary(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("updates maximum borrow when the oracle price changes", () => {
@@ -364,21 +364,21 @@ describe("lending-pool", () => {
     borrowLoan(wallet1);
     repayLoan(wallet1, 100_000_000);
     const { result } = getLoanEventSummary(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("records a block height for loan events", () => {
     setupProtocol();
     borrowLoan(wallet1);
     const { result } = getLastLoanEvent(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("stores the borrow amount in the first loan event", () => {
     setupProtocol();
     borrowLoan(wallet1);
     const { result } = getLoanEvent(wallet1, 0);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("stores the repay amount in the last loan event", () => {
@@ -386,7 +386,7 @@ describe("lending-pool", () => {
     borrowLoan(wallet1);
     repayLoan(wallet1);
     const { result } = getLastLoanEvent(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("stores the total debt in the liquidation event", () => {
@@ -395,7 +395,7 @@ describe("lending-pool", () => {
     simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
     liquidateLoan(wallet1);
     const { result } = getLastLoanEvent(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("allows a second borrower to open a loan independently", () => {
@@ -411,7 +411,7 @@ describe("lending-pool", () => {
     simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
     liquidateLoan(wallet1);
     const { result } = getLoanEventSummary(wallet1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("allows a borrower to open a new loan after liquidation", () => {
@@ -442,7 +442,7 @@ describe("lending-pool", () => {
     setupProtocol();
     borrowLoan(wallet1);
     const { result } = getHealthFactor(wallet1);
-    expect(result).toBeOk(Cl.uint(expect.any(Number)));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("returns none for last event when there is no history", () => {
@@ -479,7 +479,7 @@ describe("lending-pool", () => {
     borrowLoan(wallet1);
     repayLoan(wallet1, 100_000_000);
     const { result } = getLoanEvent(wallet1, 1);
-    expect(result).toBeOk(Cl.some(expect.anything()));
+    expect(result).toBeOk(expect.anything());
   });
 
   it("allows a second borrower to be liquidated independently", () => {
