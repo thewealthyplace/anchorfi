@@ -364,3 +364,17 @@
     e (err e)
   )
 )
+
+(define-read-only (get-total-debt (borrower principal))
+  ;; Return principal + all accrued interest including pending interest since last accrual
+  (match (map-get? loans borrower)
+    loan
+    (let (
+      (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+      (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+    )
+      (ok (+ (get principal-amount loan) (get interest-accrued loan) pending-interest))
+    )
+    (ok u0)
+  )
+)
