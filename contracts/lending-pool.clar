@@ -500,3 +500,11 @@
     (ok u0)
   )
 )
+
+(define-read-only (get-interest-rate-info)
+  ;; Return protocol interest rate constants so callers can compute accrual off-chain
+  (ok {
+    rate-per-block: INTEREST_RATE_PER_BLOCK,
+    precision: INTEREST_PRECISION
+  })
+)
