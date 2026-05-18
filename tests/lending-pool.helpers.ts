@@ -101,3 +101,7 @@ export function getMaxBorrow(collateral = COLLATERAL, price = STX_PRICE) {
 export function getHealthFactor(borrower = wallet1) {
   return simnet.callReadOnlyFn("lending-pool", "get-health-factor", [Cl.principal(borrower)], deployer);
 }
+
+export function getTotalDebt(borrower = wallet1) {
+  return simnet.callReadOnlyFn("lending-pool", "get-total-debt", [Cl.principal(borrower)], deployer);
+}
