@@ -121,3 +121,15 @@ export function getCollateralRatio(borrower = wallet1) {
 export function getBorrowerSnapshot(borrower = wallet1) {
   return simnet.callReadOnlyFn("lending-pool", "get-borrower-snapshot", [Cl.principal(borrower)], deployer);
 }
+
+export function getSafeBorrowAmount(collateral = COLLATERAL) {
+  return simnet.callReadOnlyFn("lending-pool", "get-safe-borrow-amount", [Cl.uint(collateral)], deployer);
+}
+
+export function getLiquidationPrice(borrower = wallet1) {
+  return simnet.callReadOnlyFn("lending-pool", "get-liquidation-price", [Cl.principal(borrower)], deployer);
+}
+
+export function getInterestRateInfo() {
+  return simnet.callReadOnlyFn("lending-pool", "get-interest-rate-info", [], deployer);
+}
