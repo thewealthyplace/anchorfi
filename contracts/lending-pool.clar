@@ -2,7 +2,8 @@
 ;; Core borrow/repay logic with interest accrual
 ;; Optimized for gas efficiency: price caching, helper functions, validation helpers
 ;; Adds loan activity tracking and borrower event history
-;; Version: 2.0 with event tracking
+;; Integrates with liquidation registry for protocol-wide liquidation tracking
+;; Version: 3.0 with liquidation registry integration
 
 (define-constant ERR-NOT-AUTHORIZED (err u400)) ;; Error for unauthorized access
 (define-constant ERR-ZERO-AMOUNT (err u401)) ;; Error for zero amount inputs
@@ -150,7 +151,7 @@
   )
 )
 
-(define-public (get-loan-event-count (borrower principal))
+(define-read-only (get-loan-event-count (borrower principal))
   ;; Get number of recorded loan events for a borrower
   (ok (match (map-get? loan-event-count borrower)
         count count
@@ -158,7 +159,7 @@
       ))
 )
 
-(define-public (get-last-loan-event (borrower principal))
+(define-read-only (get-last-loan-event (borrower principal))
   ;; Get the last recorded loan event for a borrower
   (let ((count (match (map-get? loan-event-count borrower)
                  c c
@@ -334,7 +335,7 @@
   ;; Calculate health factor: collateral_value / total_owed * precision
   (match (map-get? loans borrower)
     loan
-    (match (get-stx-price)
+    (match (contract-call? .oracle get-price)
       price
       (let (
         (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
@@ -355,7 +356,7 @@
 
 (define-read-only (get-max-borrow (collateral-amount uint))
   ;; Calculate maximum borrow amount for given collateral
-  (match (get-stx-price)
+  (match (contract-call? .oracle get-price)
     price
     (let ((collateral-value-usd (stx-to-usd collateral-amount price)))
       (ok (calculate-max-borrow collateral-value-usd))
