@@ -952,4 +952,15 @@ describe("lending-pool", () => {
     expect(health).toBeGreaterThan(0);
   });
 
+
+  it("estimated interest and total debt are consistent after borrow", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result: interestRes } = getEstimatedInterest(wallet1);
+    const { result: debtRes } = getTotalDebt(wallet1);
+    const interest = Number((interestRes as any).value.value);
+    const debt = Number((debtRes as any).value.value);
+    expect(debt).toBeGreaterThanOrEqual(BORROW_AMOUNT + interest);
+  });
+
 });
