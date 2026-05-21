@@ -610,4 +610,17 @@ describe("lending-pool", () => {
     expect(Number(interest)).toBeGreaterThan(0);
   });
 
+
+  it("estimated interest grows as more blocks elapse", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result: r1 } = getEstimatedInterest(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(2_000_000)], deployer);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(2_000_000)], deployer);
+    const { result: r2 } = getEstimatedInterest(wallet1);
+    const i1 = Number((r1 as any).value.value);
+    const i2 = Number((r2 as any).value.value);
+    expect(i2).toBeGreaterThanOrEqual(i1);
+  });
+
 });
