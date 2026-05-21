@@ -803,4 +803,12 @@ describe("lending-pool", () => {
     expect(safeVal).toBeLessThan(maxVal);
   });
 
+
+  it("get-safe-borrow-amount returns non-zero for standard collateral", () => {
+    setupProtocol();
+    const { result } = getSafeBorrowAmount(COLLATERAL);
+    const safe = Number((result as any).value.value);
+    expect(safe).toBeGreaterThan(0);
+  });
+
 });
