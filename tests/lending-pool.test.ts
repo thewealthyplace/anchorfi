@@ -680,4 +680,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("get-collateral-ratio returns a non-zero value after borrow", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getCollateralRatio(wallet1);
+    const ratio = (result as any).value.value;
+    expect(Number(ratio)).toBeGreaterThan(0);
+  });
+
 });
