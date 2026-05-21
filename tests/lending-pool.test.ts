@@ -769,4 +769,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.none());
   });
 
+
+  it("get-borrower-snapshot returns none after full repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getBorrowerSnapshot(wallet1);
+    expect(result).toBeOk(Cl.none());
+  });
+
 });
