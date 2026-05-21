@@ -861,4 +861,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("get-liquidation-price for wallet2 is positive after wallet2 borrows", () => {
+    setupProtocol();
+    borrowLoan(wallet2);
+    const { result } = getLiquidationPrice(wallet2);
+    const liqPrice = Number((result as any).value.value);
+    expect(liqPrice).toBeGreaterThan(0);
+  });
+
 });
