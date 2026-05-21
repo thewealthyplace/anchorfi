@@ -929,4 +929,14 @@ describe("lending-pool", () => {
     expect(debt).toBe(snapDebt);
   });
 
+
+  it("safe borrow amount is strictly less than max borrow for same collateral", () => {
+    setupProtocol();
+    const { result: safe } = getSafeBorrowAmount(COLLATERAL);
+    const { result: max } = getMaxBorrow(COLLATERAL);
+    const safeVal = Number((safe as any).value.value);
+    const maxVal = Number((max as any).value.value);
+    expect(safeVal).toBeLessThan(maxVal);
+  });
+
 });
