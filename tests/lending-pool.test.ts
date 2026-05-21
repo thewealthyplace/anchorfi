@@ -565,4 +565,10 @@ describe("lending-pool", () => {
     expect(Number(debt)).toBeGreaterThan(0);
   });
 
+
+  it("returns zero estimated interest when no loan exists", () => {
+    const { result } = getEstimatedInterest(wallet1);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
