@@ -689,4 +689,13 @@ describe("lending-pool", () => {
     expect(Number(ratio)).toBeGreaterThan(0);
   });
 
+
+  it("get-collateral-ratio is lower than RATIO_PRECISION when healthy", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getCollateralRatio(wallet1);
+    const ratio = Number((result as any).value.value);
+    expect(ratio).toBeLessThan(1000);
+  });
+
 });
