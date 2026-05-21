@@ -535,4 +535,15 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("total debt for both borrowers is tracked independently", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    borrowLoan(wallet2);
+    const { result: debt1 } = getTotalDebt(wallet1);
+    const { result: debt2 } = getTotalDebt(wallet2);
+    expect(debt1).not.toEqual(Cl.uint(0));
+    expect(debt2).not.toEqual(Cl.uint(0));
+  });
+
 });
