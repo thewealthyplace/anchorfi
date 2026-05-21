@@ -870,4 +870,13 @@ describe("lending-pool", () => {
     expect(liqPrice).toBeGreaterThan(0);
   });
 
+
+  it("get-liquidation-price returns zero after full repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getLiquidationPrice(wallet1);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
