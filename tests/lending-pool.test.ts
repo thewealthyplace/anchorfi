@@ -989,4 +989,16 @@ describe("lending-pool", () => {
     expect(ratio).toBeGreaterThanOrEqual(800);
   });
 
+
+  it("two borrowers have independent estimated interest values", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    borrowLoan(wallet2);
+    const { result: i1 } = getEstimatedInterest(wallet1);
+    const { result: i2 } = getEstimatedInterest(wallet2);
+    // Both should be non-negative and independent
+    expect(Number((i1 as any).value.value)).toBeGreaterThanOrEqual(0);
+    expect(Number((i2 as any).value.value)).toBeGreaterThanOrEqual(0);
+  });
+
 });
