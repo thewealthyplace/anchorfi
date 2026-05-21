@@ -734,4 +734,12 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.none());
   });
 
+
+  it("get-borrower-snapshot returns some after opening a loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getBorrowerSnapshot(wallet1);
+    expect(result).toBeOk(expect.anything());
+  });
+
 });
