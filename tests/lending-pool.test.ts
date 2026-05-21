@@ -571,4 +571,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("returns zero or more estimated interest immediately after borrow", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getEstimatedInterest(wallet1);
+    const interest = (result as any).value.value;
+    expect(Number(interest)).toBeGreaterThanOrEqual(0);
+  });
+
 });
