@@ -1001,4 +1001,11 @@ describe("lending-pool", () => {
     expect(Number((i2 as any).value.value)).toBeGreaterThanOrEqual(0);
   });
 
+
+  it("liquidation price is zero for borrower with no loan", () => {
+    setupProtocol();
+    const { result } = getLiquidationPrice(wallet1);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
