@@ -1026,4 +1026,21 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("all query functions return ok without panicking when called on fresh simnet", () => {
+    setupProtocol();
+    const calls = [
+      getTotalDebt(wallet1),
+      getEstimatedInterest(wallet1),
+      isLiquidatable(wallet1),
+      getCollateralRatio(wallet1),
+      getBorrowerSnapshot(wallet1),
+      getLiquidationPrice(wallet1),
+      getInterestRateInfo(),
+    ];
+    for (const { result } of calls) {
+      expect((result as any).type).toBe("ok");
+    }
+  });
+
 });
