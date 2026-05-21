@@ -829,4 +829,10 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(1_200_000_000));
   });
 
+
+  it("get-liquidation-price returns zero when borrower has no loan", () => {
+    const { result } = getLiquidationPrice(wallet1);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
