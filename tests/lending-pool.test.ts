@@ -580,4 +580,12 @@ describe("lending-pool", () => {
     expect(Number(interest)).toBeGreaterThanOrEqual(0);
   });
 
+
+  it("estimated interest is zero for wallet2 when only wallet1 has a loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getEstimatedInterest(wallet2);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
