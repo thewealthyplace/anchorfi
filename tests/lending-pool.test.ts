@@ -899,4 +899,11 @@ describe("lending-pool", () => {
     expect(Number(info["precision"].value)).toBe(1_000_000);
   });
 
+
+  it("get-interest-rate-info returns consistent values across multiple calls", () => {
+    const { result: r1 } = getInterestRateInfo();
+    const { result: r2 } = getInterestRateInfo();
+    expect(r1).toEqual(r2);
+  });
+
 });
