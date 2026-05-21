@@ -527,4 +527,12 @@ describe("lending-pool", () => {
     expect(Number(debt)).toBeGreaterThanOrEqual(BORROW_AMOUNT);
   });
 
+
+  it("total debt for wallet2 is zero before wallet2 borrows", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getTotalDebt(wallet2);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
