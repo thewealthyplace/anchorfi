@@ -467,7 +467,7 @@
   )
 )
 
-(define-constant SAFE_BORROW_RATIO u600) ;; 60% — conservative threshold below LTV_RATIO (70%)
+(define-constant SAFE_BORROW_RATIO u600) ;; 60% - conservative threshold below LTV_RATIO (70%)
 
 (define-read-only (get-safe-borrow-amount (collateral-amount uint))
   ;; Return a conservative max borrow (60% LTV) giving more buffer before the 80% liquidation threshold
