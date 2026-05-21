@@ -665,4 +665,13 @@ describe("lending-pool", () => {
     expect(liqResult).toBeOk(Cl.bool(true));
   });
 
+
+  it("is-liquidatable returns false after full repayment closes the loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = isLiquidatable(wallet1);
+    expect(result).toBeOk(Cl.bool(false));
+  });
+
 });
