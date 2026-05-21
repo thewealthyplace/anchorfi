@@ -654,4 +654,15 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.bool(false));
   });
 
+
+  it("is-liquidatable matches the result of calling liquidate", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    const { result: liquidatable } = isLiquidatable(wallet1);
+    const { result: liqResult } = liquidateLoan(wallet1);
+    expect(liquidatable).toBeOk(Cl.bool(true));
+    expect(liqResult).toBeOk(Cl.bool(true));
+  });
+
 });
