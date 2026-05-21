@@ -597,4 +597,17 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("estimated interest is positive after several blocks elapsed", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    // advance time by running multiple no-op oracle updates
+    for (let i = 0; i < 5; i++) {
+      simnet.callPublicFn("oracle", "set-price", [Cl.uint(2_000_000)], deployer);
+    }
+    const { result } = getEstimatedInterest(wallet1);
+    const interest = (result as any).value.value;
+    expect(Number(interest)).toBeGreaterThan(0);
+  });
+
 });
