@@ -588,4 +588,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("estimated interest returns zero after full repayment closes the loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getEstimatedInterest(wallet1);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
