@@ -906,4 +906,16 @@ describe("lending-pool", () => {
     expect(r1).toEqual(r2);
   });
 
+
+  it("snapshot is-liquidatable field matches is-liquidatable function result", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    const { result: liq } = isLiquidatable(wallet1);
+    const { result: snap } = getBorrowerSnapshot(wallet1);
+    const snapLiq = (snap as any).value.value.value["is-liquidatable"].value;
+    const liqVal = (liq as any).value.value;
+    expect(snapLiq).toBe(liqVal);
+  });
+
 });
