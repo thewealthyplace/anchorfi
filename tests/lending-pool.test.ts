@@ -821,4 +821,12 @@ describe("lending-pool", () => {
     expect(s2).toBe(s1 * 2);
   });
 
+
+  it("get-safe-borrow-amount equals sixty percent of collateral USD value", () => {
+    setupProtocol();
+    // collateral 1B microSTX * price 2M / 1M = 2B micro-USD; 60% = 1.2B
+    const { result } = getSafeBorrowAmount(COLLATERAL);
+    expect(result).toBeOk(Cl.uint(1_200_000_000));
+  });
+
 });
