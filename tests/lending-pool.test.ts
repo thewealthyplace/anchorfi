@@ -710,4 +710,12 @@ describe("lending-pool", () => {
     expect(ratio2).toBeGreaterThan(ratio1);
   });
 
+
+  it("get-collateral-ratio returns zero for wallet2 before any borrow", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getCollateralRatio(wallet2);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
