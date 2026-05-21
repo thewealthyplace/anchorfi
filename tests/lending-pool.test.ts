@@ -637,4 +637,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.bool(false));
   });
 
+
+  it("is-liquidatable returns true after oracle price drops below threshold", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    const { result } = isLiquidatable(wallet1);
+    expect(result).toBeOk(Cl.bool(true));
+  });
+
 });
