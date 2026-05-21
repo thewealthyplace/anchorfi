@@ -727,4 +727,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("get-borrower-snapshot returns none when no loan exists", () => {
+    setupProtocol();
+    const { result } = getBorrowerSnapshot(wallet1);
+    expect(result).toBeOk(Cl.none());
+  });
+
 });
