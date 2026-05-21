@@ -674,4 +674,10 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.bool(false));
   });
 
+
+  it("get-collateral-ratio returns zero when borrower has no loan", () => {
+    const { result } = getCollateralRatio(wallet1);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
