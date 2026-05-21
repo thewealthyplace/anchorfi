@@ -742,4 +742,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(expect.anything());
   });
 
+
+  it("get-borrower-snapshot is-liquidatable is false for healthy position", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getBorrowerSnapshot(wallet1);
+    const snap = (result as any).value.value.value;
+    expect(snap["is-liquidatable"].value).toBe(false);
+  });
+
 });
