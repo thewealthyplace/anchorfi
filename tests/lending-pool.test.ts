@@ -751,4 +751,14 @@ describe("lending-pool", () => {
     expect(snap["is-liquidatable"].value).toBe(false);
   });
 
+
+  it("get-borrower-snapshot is-liquidatable is true after price drop", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    const { result } = getBorrowerSnapshot(wallet1);
+    const snap = (result as any).value.value.value;
+    expect(snap["is-liquidatable"].value).toBe(true);
+  });
+
 });
