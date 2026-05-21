@@ -718,4 +718,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("get-collateral-ratio returns zero after full repayment closes loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getCollateralRatio(wallet1);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
