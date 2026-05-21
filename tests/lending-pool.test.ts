@@ -844,4 +844,13 @@ describe("lending-pool", () => {
     expect(liqPrice).toBeGreaterThan(0);
   });
 
+
+  it("get-liquidation-price is below current oracle price for healthy position", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getLiquidationPrice(wallet1);
+    const liqPrice = Number((result as any).value.value);
+    expect(liqPrice).toBeLessThan(2_000_000);
+  });
+
 });
