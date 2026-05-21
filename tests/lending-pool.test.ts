@@ -885,4 +885,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(expect.anything());
   });
 
+
+  it("get-interest-rate-info rate-per-block is ten", () => {
+    const { result } = getInterestRateInfo();
+    const info = (result as any).value.value;
+    expect(Number(info["rate-per-block"].value)).toBe(10);
+  });
+
 });
