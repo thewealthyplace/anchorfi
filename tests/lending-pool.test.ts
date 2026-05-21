@@ -761,4 +761,12 @@ describe("lending-pool", () => {
     expect(snap["is-liquidatable"].value).toBe(true);
   });
 
+
+  it("get-borrower-snapshot returns none for wallet2 before wallet2 borrows", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getBorrowerSnapshot(wallet2);
+    expect(result).toBeOk(Cl.none());
+  });
+
 });
