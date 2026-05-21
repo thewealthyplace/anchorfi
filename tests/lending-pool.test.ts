@@ -629,4 +629,12 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.bool(false));
   });
 
+
+  it("is-liquidatable returns false for a healthy position after borrow", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = isLiquidatable(wallet1);
+    expect(result).toBeOk(Cl.bool(false));
+  });
+
 });
