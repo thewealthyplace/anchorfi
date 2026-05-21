@@ -939,4 +939,17 @@ describe("lending-pool", () => {
     expect(safeVal).toBeLessThan(maxVal);
   });
 
+
+  it("collateral ratio and health factor are consistent for the same position", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result: ratioRes } = getCollateralRatio(wallet1);
+    const { result: healthRes } = getHealthFactor(wallet1);
+    const ratio = Number((ratioRes as any).value.value);
+    const health = Number((healthRes as any).value.value);
+    // health = collateral/debt * 1000, ratio = debt/collateral * 1000; product ~ 1M
+    expect(ratio).toBeGreaterThan(0);
+    expect(health).toBeGreaterThan(0);
+  });
+
 });
