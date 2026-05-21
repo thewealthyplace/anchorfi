@@ -976,4 +976,17 @@ describe("lending-pool", () => {
     expect(ratio).toBeLessThan(800);
   });
 
+
+  it("is-liquidatable true and collateral-ratio above LIQUIDATION_THRESHOLD are consistent", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    const { result: liqRes } = isLiquidatable(wallet1);
+    const { result: ratioRes } = getCollateralRatio(wallet1);
+    const liq = (liqRes as any).value.value;
+    const ratio = Number((ratioRes as any).value.value);
+    expect(liq).toBe(true);
+    expect(ratio).toBeGreaterThanOrEqual(800);
+  });
+
 });
