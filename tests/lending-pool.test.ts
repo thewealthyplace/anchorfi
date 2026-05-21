@@ -1017,4 +1017,13 @@ describe("lending-pool", () => {
     expect(s2).toBeOk(Cl.none());
   });
 
+
+  it("estimated interest returns zero for wallet2 when wallet2 has no loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getEstimatedInterest(wallet2);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
