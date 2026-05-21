@@ -879,4 +879,10 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("get-interest-rate-info returns a result ok", () => {
+    const { result } = getInterestRateInfo();
+    expect(result).toBeOk(expect.anything());
+  });
+
 });
