@@ -512,4 +512,10 @@ describe("lending-pool", () => {
     expect(count2).toBeOk(Cl.uint(1));
   });
 
+
+  it("returns zero total debt when no loan exists", () => {
+    const { result } = getTotalDebt(wallet1);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
