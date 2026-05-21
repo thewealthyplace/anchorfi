@@ -918,4 +918,15 @@ describe("lending-pool", () => {
     expect(snapLiq).toBe(liqVal);
   });
 
+
+  it("total debt matches snapshot total-owed field", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result: debtRes } = getTotalDebt(wallet1);
+    const { result: snapRes } = getBorrowerSnapshot(wallet1);
+    const debt = Number((debtRes as any).value.value);
+    const snapDebt = Number((snapRes as any).value.value.value["total-owed"].value);
+    expect(debt).toBe(snapDebt);
+  });
+
 });
