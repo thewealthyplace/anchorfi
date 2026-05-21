@@ -892,4 +892,11 @@ describe("lending-pool", () => {
     expect(Number(info["rate-per-block"].value)).toBe(10);
   });
 
+
+  it("get-interest-rate-info precision is one million", () => {
+    const { result } = getInterestRateInfo();
+    const info = (result as any).value.value;
+    expect(Number(info["precision"].value)).toBe(1_000_000);
+  });
+
 });
