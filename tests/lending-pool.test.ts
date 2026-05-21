@@ -853,4 +853,12 @@ describe("lending-pool", () => {
     expect(liqPrice).toBeLessThan(2_000_000);
   });
 
+
+  it("get-liquidation-price is zero for wallet2 before wallet2 borrows", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getLiquidationPrice(wallet2);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
