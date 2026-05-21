@@ -811,4 +811,14 @@ describe("lending-pool", () => {
     expect(safe).toBeGreaterThan(0);
   });
 
+
+  it("get-safe-borrow-amount scales with collateral amount", () => {
+    setupProtocol();
+    const { result: r1 } = getSafeBorrowAmount(COLLATERAL);
+    const { result: r2 } = getSafeBorrowAmount(COLLATERAL * 2);
+    const s1 = Number((r1 as any).value.value);
+    const s2 = Number((r2 as any).value.value);
+    expect(s2).toBe(s1 * 2);
+  });
+
 });
