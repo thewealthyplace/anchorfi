@@ -623,4 +623,10 @@ describe("lending-pool", () => {
     expect(i2).toBeGreaterThanOrEqual(i1);
   });
 
+
+  it("is-liquidatable returns false when borrower has no loan", () => {
+    const { result } = isLiquidatable(wallet1);
+    expect(result).toBeOk(Cl.bool(false));
+  });
+
 });
