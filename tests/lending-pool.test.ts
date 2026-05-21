@@ -546,4 +546,13 @@ describe("lending-pool", () => {
     expect(debt2).not.toEqual(Cl.uint(0));
   });
 
+
+  it("total debt returns zero after full repayment closes loan", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1);
+    const { result } = getTotalDebt(wallet1);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
