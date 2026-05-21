@@ -963,4 +963,17 @@ describe("lending-pool", () => {
     expect(debt).toBeGreaterThanOrEqual(BORROW_AMOUNT + interest);
   });
 
+
+  it("is-liquidatable false and collateral-ratio below LIQUIDATION_THRESHOLD are consistent", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result: liqRes } = isLiquidatable(wallet1);
+    const { result: ratioRes } = getCollateralRatio(wallet1);
+    const liq = (liqRes as any).value.value;
+    const ratio = Number((ratioRes as any).value.value);
+    // Position is healthy: ratio < 800 (LIQUIDATION_THRESHOLD) and is-liquidatable false
+    expect(liq).toBe(false);
+    expect(ratio).toBeLessThan(800);
+  });
+
 });
