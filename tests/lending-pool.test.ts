@@ -793,4 +793,14 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("get-safe-borrow-amount is less than get-max-borrow for same collateral", () => {
+    setupProtocol();
+    const { result: safe } = getSafeBorrowAmount(COLLATERAL);
+    const { result: max } = getMaxBorrow(COLLATERAL);
+    const safeVal = Number((safe as any).value.value);
+    const maxVal = Number((max as any).value.value);
+    expect(safeVal).toBeLessThan(maxVal);
+  });
+
 });
