@@ -698,4 +698,16 @@ describe("lending-pool", () => {
     expect(ratio).toBeLessThan(1000);
   });
 
+
+  it("get-collateral-ratio increases when oracle price drops", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result: r1 } = getCollateralRatio(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_000_000)], deployer);
+    const { result: r2 } = getCollateralRatio(wallet1);
+    const ratio1 = Number((r1 as any).value.value);
+    const ratio2 = Number((r2 as any).value.value);
+    expect(ratio2).toBeGreaterThan(ratio1);
+  });
+
 });
