@@ -786,4 +786,11 @@ describe("lending-pool", () => {
     expect(result).toBeOk(expect.anything());
   });
 
+
+  it("get-safe-borrow-amount returns zero for zero collateral", () => {
+    setupProtocol();
+    const { result } = getSafeBorrowAmount(0);
+    expect(result).toBeOk(Cl.uint(0));
+  });
+
 });
