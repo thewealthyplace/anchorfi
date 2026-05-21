@@ -555,4 +555,14 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("total debt is positive after partial repayment", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    repayLoan(wallet1, 100_000_000);
+    const { result } = getTotalDebt(wallet1);
+    const debt = (result as any).value.value;
+    expect(Number(debt)).toBeGreaterThan(0);
+  });
+
 });
