@@ -518,4 +518,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("returns principal as total debt immediately after borrow", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result } = getTotalDebt(wallet1);
+    const debt = (result as any).value.value;
+    expect(Number(debt)).toBeGreaterThanOrEqual(BORROW_AMOUNT);
+  });
+
 });
