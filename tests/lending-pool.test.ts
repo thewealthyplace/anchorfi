@@ -1008,4 +1008,13 @@ describe("lending-pool", () => {
     expect(result).toBeOk(Cl.uint(0));
   });
 
+
+  it("snapshot is none for both wallets before any borrow", () => {
+    setupProtocol();
+    const { result: s1 } = getBorrowerSnapshot(wallet1);
+    const { result: s2 } = getBorrowerSnapshot(wallet2);
+    expect(s1).toBeOk(Cl.none());
+    expect(s2).toBeOk(Cl.none());
+  });
+
 });
