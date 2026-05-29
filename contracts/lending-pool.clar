@@ -447,7 +447,7 @@
   ;; Return a full position snapshot in a single call for efficient UI rendering
   (match (map-get? loans borrower)
     loan
-    (match (contract-call? .oracle get-price)
+    (match (get-stx-price)
       price
       (let (
         (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
