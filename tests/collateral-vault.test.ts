@@ -223,3 +223,11 @@ describe("collateral-vault", () => {
       [Cl.uint(500_000_000)], wallet1);
     expect(result).toBeErr(Cl.uint(303));
   });
+
+  it("vault stress test scenario 1", () => {
+    for (let i = 0; i < 3; i++) {
+      simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(100_000_000)], wallet1);
+    }
+    const { result } = simnet.callReadOnlyFn("collateral-vault", "get-total-collateral", [], deployer);
+    expect(result).toBeOk(Cl.uint(300_000_000));
+  });
