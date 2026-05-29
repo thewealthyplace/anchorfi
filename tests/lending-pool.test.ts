@@ -2538,3 +2538,11 @@ describe("lending-pool", () => {
     const { result } = getHealthFactor(wallet2);
     expect(Number((result as any).value.value)).toBeGreaterThan(0);
   });
+
+  it("health factor edge test batch5-25", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(800000)], deployer);
+    const { result } = getHealthFactor(wallet1);
+    expect(Number((result as any).value.value)).toBeGreaterThan(0);
+  });
