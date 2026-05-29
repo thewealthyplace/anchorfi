@@ -362,7 +362,7 @@
 
 (define-read-only (get-max-borrow (collateral-amount uint))
   ;; Calculate maximum borrow amount for given collateral
-  (match (contract-call? .oracle get-price)
+  (match (get-stx-price)
     price
     (let ((collateral-value-usd (stx-to-usd collateral-amount price)))
       (ok (calculate-max-borrow collateral-value-usd))
