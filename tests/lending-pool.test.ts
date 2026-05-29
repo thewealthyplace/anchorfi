@@ -1270,3 +1270,13 @@ describe("lending-pool", () => {
     expect(snapLiq).toBe(true);
     expect(liqRes).toBeOk(Cl.bool(true));
   });
+
+  it("safe borrow amount ensures health factor stays above liquidation threshold", () => {
+    setupProtocol();
+    const { result: safe } = getSafeBorrowAmount(COLLATERAL);
+    borrowLoan(wallet1, Number((safe as any).value.value));
+    const { result } = getHealthFactor(wallet1);
+    const health = Number((result as any).value.value);
+    // At 60% LTV, health factor = 1000/0.6 = 1667
+    expect(health).toBeGreaterThan(LIQUIDATION_HEALTH_FACTOR);
+  });
