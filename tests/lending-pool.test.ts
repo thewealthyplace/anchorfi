@@ -1468,3 +1468,23 @@ describe("lending-pool", () => {
     const { result: valueRes } = simnet.callReadOnlyFn("liquidation", "get-total-liquidated-value", [], deployer);
     expect(Number((valueRes as any).value.value)).toBeGreaterThan(0);
   });
+
+  it("multiple liquidators have independent stats in registry", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    // wallet2 liquidates next
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(COLLATERAL)], wallet1);
+    simnet.callPublicFn("ausd-token", "mint", [Cl.uint(10_000_000_000), Cl.principal(wallet2)], deployer);
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1, wallet2);
+    const { result: stats1 } = simnet.callReadOnlyFn("liquidation", "get-liquidator-stats", [Cl.principal(wallet1)], deployer);
+    const { result: stats2 } = simnet.callReadOnlyFn("liquidation", "get-liquidator-stats", [Cl.principal(wallet2)], deployer);
+    const s1 = Number(((stats1 as any).value.value)["total-liquidations"].value);
+    const s2 = Number(((stats2 as any).value.value)["total-liquidations"].value);
+    expect(s1).toBe(1);
+    expect(s2).toBe(1);
+  });
