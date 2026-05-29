@@ -1546,3 +1546,9 @@ describe("lending-pool", () => {
     const { result } = borrowLoan(wallet1, 100, 0);
     expect(result).toBeErr(Cl.uint(402));
   });
+
+  it("borrow edge case 2: zero collateral borrow rejected", () => {
+    setupProtocol();
+    const { result } = borrowLoan(wallet1, 100, 0);
+    expect(result).toBeErr(Cl.uint(402));
+  });
