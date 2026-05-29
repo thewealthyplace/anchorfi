@@ -7,7 +7,8 @@ set -e
 NETWORK=${1:-testnet}
 
 echo "Deploying AnchorFi to $NETWORK..."
-
+echo ""
+echo "Validating Clarinet contracts..."
 clarinet check
 
 case $NETWORK in
