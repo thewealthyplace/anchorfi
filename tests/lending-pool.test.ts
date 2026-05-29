@@ -2081,3 +2081,18 @@ describe("lending-pool", () => {
     const { result } = simnet.callReadOnlyFn("liquidation", "get-total-liquidations", [], deployer);
     expect(Number((result as any).value.value)).toBe(3);
   });
+
+  it("liquidation total counter variant 4", () => {
+    setupProtocol();
+    for (let j = 0; j < 4; j++) {
+      borrowLoan(wallet1);
+      simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+      liquidateLoan(wallet1);
+      if (j < 3) {
+        simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
+        simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(COLLATERAL)], wallet1);
+      }
+    }
+    const { result } = simnet.callReadOnlyFn("liquidation", "get-total-liquidations", [], deployer);
+    expect(Number((result as any).value.value)).toBe(4);
+  });
