@@ -1438,3 +1438,13 @@ describe("lending-pool", () => {
     const { result } = simnet.callReadOnlyFn("liquidation", "get-total-liquidations", [], deployer);
     expect(result).toBeOk(Cl.uint(2));
   });
+
+  it("liquidator stats update after each liquidation", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = simnet.callReadOnlyFn("liquidation", "get-liquidator-stats", [Cl.principal(wallet1)], deployer);
+    const stats = (result as any).value.value;
+    expect(Number(stats["total-liquidations"].value)).toBe(1);
+  });
