@@ -1249,3 +1249,13 @@ describe("lending-pool", () => {
     const { result } = liquidateLoan(wallet2);
     expect(result).toBeOk(Cl.bool(true));
   });
+
+  it("health factor for wallet2 is independent after wallet1 borrows", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    borrowLoan(wallet2);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_200_000)], deployer);
+    const { result: h1 } = getHealthFactor(wallet1);
+    const { result: h2 } = getHealthFactor(wallet2);
+    expect(Number((h1 as any).value.value)).toBeCloseTo(Number((h2 as any).value.value));
+  });
