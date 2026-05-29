@@ -1459,3 +1459,12 @@ describe("lending-pool", () => {
     expect(event).toBeDefined();
     expect(event.borrower.value).toBe(wallet1);
   });
+
+  it("liquidation registry tracks total liquidated value", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result: valueRes } = simnet.callReadOnlyFn("liquidation", "get-total-liquidated-value", [], deployer);
+    expect(Number((valueRes as any).value.value)).toBeGreaterThan(0);
+  });
