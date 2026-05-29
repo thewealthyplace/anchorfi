@@ -45,3 +45,12 @@ echo "2. Call ausd-token.set-minter <lending-pool-address>"
 echo "3. Call oracle.set-price <initial-stx-usd-price>"
 echo "4. Call lending-pool.configure <oracle> <vault> <ausd> <liquidation>"
 echo "5. Call liquidation.set-lending-pool <lending-pool-address>"
+
+check_network() {
+  if ! clarinet --version > /dev/null 2>&1; then
+    echo "Error: clarinet not found. Install from https://docs.hiro.so/clarinet"
+    exit 1
+  fi
+}
+
+check_network
