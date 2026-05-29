@@ -1,0 +1,12 @@
+{
+  "protocol": {
+    "ltvRatio": 700,
+    "liquidationThreshold": 800,
+    "liquidationHealthFactor": 1250,
+    "liquidationBonus": 100,
+    "ratioPrecision": 1000,
+    "interestRatePerBlock": 10,
+    "interestPrecision": 1000000,
+    "safeBorrowRatio": 600
+  }
+}
