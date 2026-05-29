@@ -407,7 +407,7 @@
         (total-owed (+ (get principal-amount loan) (get interest-accrued loan) pending-interest))
         (health (calculate-health-factor collateral-value-usd total-owed))
       )
-        (ok (< health LIQUIDATION_THRESHOLD))
+        (ok (<= health LIQUIDATION_HEALTH_FACTOR))
       )
       e (err e)
     )
@@ -459,7 +459,7 @@
           estimated-interest: estimated-interest,
           total-owed: total-owed,
           health-factor: health,
-          is-liquidatable: (< health LIQUIDATION_THRESHOLD)
+          is-liquidatable: (<= health LIQUIDATION_HEALTH_FACTOR)
         }))
       )
       e (err e)
