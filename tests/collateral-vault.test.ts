@@ -353,3 +353,8 @@ describe("collateral-vault", () => {
     const { result } = simnet.callReadOnlyFn("collateral-vault", "get-vault", [Cl.principal(wallet1)], wallet1);
     expect(result).toBeOk(expect.anything());
   });
+
+  it("vault error scenario #1", () => {
+    const { result } = simnet.callPublicFn("collateral-vault", "withdraw", [Cl.uint(100)], wallet1);
+    expect((result as any).type).toBe("err");
+  });
