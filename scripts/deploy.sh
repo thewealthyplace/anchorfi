@@ -11,6 +11,11 @@ echo "Deploying AnchorFi to $NETWORK..."
 clarinet check
 
 case $NETWORK in
+  simnet)
+    clarinet deployments generate --simnet
+    echo "Simnet: add contract configuration steps manually in deployments/default.simnet-plan.yaml"
+    ;;
+
   testnet)
     clarinet deployments generate --testnet
     clarinet deployments apply --testnet
