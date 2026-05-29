@@ -1,4 +1,5 @@
 [project]
+; AnchorFi protocol configuration for Clarinet
 name = 'anchorfi'
 description = 'Bitcoin-anchored lending protocol on Stacks'
 authors = []
