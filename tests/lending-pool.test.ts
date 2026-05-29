@@ -2191,3 +2191,13 @@ describe("lending-pool", () => {
     const { result } = simnet.callReadOnlyFn("lending-pool", "get-max-borrow", [Cl.uint(COLLATERAL)], deployer);
     expect(result).toBeOk(expect.anything());
   });
+
+  it("price cache consistency read 9", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    for (let b = 0; b < 8; b++) {
+      simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
+    }
+    const { result } = simnet.callReadOnlyFn("lending-pool", "get-max-borrow", [Cl.uint(COLLATERAL)], deployer);
+    expect(result).toBeOk(expect.anything());
+  });
