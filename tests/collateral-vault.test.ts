@@ -165,3 +165,14 @@ describe("collateral-vault", () => {
     expect(Number(v.deposited.value)).toBe(800_000_000);
     expect(Number(v.locked.value)).toBe(300_000_000);
   });
+
+  it("available-collateral equals deposited minus locked", () => {
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(1_000_000_000)], wallet1);
+    simnet.callPublicFn("collateral-vault", "set-lending-pool",
+      [Cl.principal(`${deployer}.lending-pool`)], deployer);
+    simnet.callPublicFn("collateral-vault", "lock-collateral",
+      [Cl.principal(wallet1), Cl.uint(300_000_000)], wallet1);
+    const { result } = simnet.callReadOnlyFn("collateral-vault", "get-available-collateral",
+      [Cl.principal(wallet1)], wallet1);
+    expect(result).toBeOk(Cl.uint(700_000_000));
+  });
