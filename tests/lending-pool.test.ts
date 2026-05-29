@@ -3285,3 +3285,11 @@ describe("lending-pool", () => {
     const { result } = liquidateLoan(wallet1);
     expect(result).toBeOk(Cl.bool(true));
   });
+
+  it("state optimization test #19", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    const { result } = liquidateLoan(wallet1);
+    expect(result).toBeOk(Cl.bool(true));
+  });
