@@ -1259,3 +1259,14 @@ describe("lending-pool", () => {
     const { result: h2 } = getHealthFactor(wallet2);
     expect(Number((h1 as any).value.value)).toBeCloseTo(Number((h2 as any).value.value));
   });
+
+  it("snapshot is-liquidatable matches liquidate result at 80% LTV boundary", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_250_000)], deployer);
+    const { result: snapRes } = getBorrowerSnapshot(wallet1);
+    const { result: liqRes } = liquidateLoan(wallet1);
+    const snapLiq = (snapRes as any).value.value.value["is-liquidatable"].value;
+    expect(snapLiq).toBe(true);
+    expect(liqRes).toBeOk(Cl.bool(true));
+  });
