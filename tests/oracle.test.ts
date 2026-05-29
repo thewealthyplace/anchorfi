@@ -56,3 +56,13 @@ describe("oracle", () => {
     expect(result).toBeOk(Cl.uint(1_000_000));
   });
 });
+
+  it("get-price returns stale error when price never set", () => {
+    const { result } = simnet.callReadOnlyFn("oracle", "get-price", [], deployer);
+    expect(result).toBeErr(Cl.uint(102));
+  });
+
+  it("get-price-unsafe returns zero when price never set", () => {
+    const { result } = simnet.callReadOnlyFn("oracle", "get-price-unsafe", [], deployer);
+    expect(result).toBeOk(Cl.uint(0));
+  });
