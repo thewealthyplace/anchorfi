@@ -2244,3 +2244,14 @@ describe("lending-pool", () => {
     const { after } = getTotalBorrowed();
     expect(Number((after as any).value.value)).toBe(0);
   });
+
+  it("liquidate without state mutation variant 4", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1100000)], deployer);
+    const { before } = getTotalBorrowed();
+    const { result } = liquidateLoan(wallet1);
+    expect(result).toBeOk(Cl.bool(true));
+    const { after } = getTotalBorrowed();
+    expect(Number((after as any).value.value)).toBe(0);
+  });
