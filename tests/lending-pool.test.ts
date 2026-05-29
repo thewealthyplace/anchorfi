@@ -1233,3 +1233,11 @@ describe("lending-pool", () => {
     expect(ratio).toBe(800);
     expect(liqRes).toBeOk(Cl.bool(true));
   });
+
+  it("is-liquidatable returns false when price is just above 1250000 boundary", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_260_000)], deployer);
+    const { result } = isLiquidatable(wallet1);
+    expect(result).toBeOk(Cl.bool(false));
+  });
