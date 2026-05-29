@@ -1602,3 +1602,11 @@ describe("lending-pool", () => {
     const { result } = liquidateLoan(wallet1);
     expect(result).toBeOk(Cl.bool(true));
   });
+
+  it("liquidation scenario 5: price crash to 250000", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(250000)], deployer);
+    const { result } = liquidateLoan(wallet1);
+    expect(result).toBeOk(Cl.bool(true));
+  });
