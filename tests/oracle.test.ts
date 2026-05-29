@@ -120,3 +120,10 @@ describe("oracle", () => {
     const { result } = simnet.callReadOnlyFn("oracle", "get-last-updated", [], deployer);
     expect(result).toBeOk(Cl.uint(0));
   });
+
+  it("oracle price set and verify variant 1", () => {
+    const price = 1000000;
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(price)], deployer);
+    const { result } = simnet.callReadOnlyFn("oracle", "get-price", [], deployer);
+    expect(result).toBeOk(Cl.uint(price));
+  });
