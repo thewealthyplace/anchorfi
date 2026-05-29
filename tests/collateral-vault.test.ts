@@ -403,3 +403,8 @@ describe("collateral-vault", () => {
     const { result } = simnet.callPublicFn("collateral-vault", "withdraw", [Cl.uint(100)], wallet1);
     expect((result as any).type).toBe("err");
   });
+
+  it("vault error scenario #11", () => {
+    const { result } = simnet.callPublicFn("collateral-vault", "withdraw", [Cl.uint(100)], wallet1);
+    expect((result as any).type).toBe("err");
+  });
