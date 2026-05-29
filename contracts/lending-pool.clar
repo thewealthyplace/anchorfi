@@ -18,7 +18,7 @@
 (define-constant LOAN-EVENT-REPAY u2) ;; Loan repayment event
 (define-constant LOAN-EVENT-LIQUIDATE u3) ;; Loan liquidation event
 
-;; LTV = 70%, Liquidation threshold = 80%, Liquidation bonus = 10%
+;; LTV = 70% (max borrow), Liquidation threshold = 80% LTV (minimum health factor 1250), Liquidation bonus = 10%
 (define-constant LTV_RATIO u700)           ;; 70.0% loan-to-value ratio
 (define-constant LIQUIDATION_THRESHOLD u800) ;; 80.0% LTV liquidation threshold
 (define-constant LIQUIDATION_BONUS u100)    ;; 10.0% liquidation bonus
