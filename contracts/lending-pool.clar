@@ -2,26 +2,29 @@
 ;; Core borrow/repay logic with interest accrual
 ;; Optimized for gas efficiency: price caching, helper functions, validation helpers
 ;; Adds loan activity tracking and borrower event history
-;; Version: 2.0 with event tracking
+;; Integrates with liquidation registry for protocol-wide liquidation tracking
+;; Version: 3.1 with full liquidation registry integration
 
 (define-constant ERR-NOT-AUTHORIZED (err u400)) ;; Error for unauthorized access
 (define-constant ERR-ZERO-AMOUNT (err u401)) ;; Error for zero amount inputs
 (define-constant ERR-INSUFFICIENT-COLLATERAL (err u402)) ;; Error for insufficient collateral
 (define-constant ERR-NO-ACTIVE-LOAN (err u403)) ;; Error for no active loan
 (define-constant ERR-OVERPAYMENT (err u404)) ;; Error for overpayment
-(define-constant ERR-ORACLE-ERROR (err u405)) ;; Error for oracle failure
+(define-constant ERR-ORACLE-ERROR (err u405)) ;; Error for oracle price fetch failure
 (define-constant ERR-HEALTHY-POSITION (err u406)) ;; Error for healthy position in liquidation
 (define-constant ERR-ACTIVE-LOAN (err u407)) ;; Error for borrower with an existing loan
+(define-constant ERR-NO-LIQUIDATION-CONTRACT (err u408)) ;; Error for missing liquidation configuration
 
 (define-constant LOAN-EVENT-BORROW u1) ;; Loan opened / borrow event
 (define-constant LOAN-EVENT-REPAY u2) ;; Loan repayment event
 (define-constant LOAN-EVENT-LIQUIDATE u3) ;; Loan liquidation event
 
-;; LTV = 70%, Liquidation threshold = 80%, Liquidation bonus = 10%
+;; LTV = 70% (max borrow), Liquidation threshold = 80% LTV (minimum health factor 1250), Liquidation bonus = 10%
 (define-constant LTV_RATIO u700)           ;; 70.0% loan-to-value ratio
-(define-constant LIQUIDATION_THRESHOLD u800) ;; 80.0% liquidation threshold
+(define-constant LIQUIDATION_THRESHOLD u800) ;; 80.0% LTV liquidation threshold
 (define-constant LIQUIDATION_BONUS u100)    ;; 10.0% liquidation bonus
 (define-constant RATIO_PRECISION u1000) ;; Precision for ratio calculations (1000 = 100%)
+(define-constant LIQUIDATION_HEALTH_FACTOR (/ (* RATIO_PRECISION RATIO_PRECISION) LIQUIDATION_THRESHOLD)) ;; 1250 = collateral/debt * 1000 at 80% LTV (1000*1000/800)
 (define-constant INTEREST_RATE_PER_BLOCK u10) ;; 0.001% per block (~5% APR at 10min blocks)
 (define-constant INTEREST_PRECISION u1000000) ;; Precision for interest calculations (1e6)
 
@@ -29,6 +32,7 @@
 (define-data-var oracle-contract principal tx-sender) ;; Oracle contract address
 (define-data-var vault-contract principal tx-sender) ;; Collateral vault contract address
 (define-data-var ausd-contract principal tx-sender) ;; aUSD token contract address
+(define-data-var liquidation-contract principal tx-sender) ;; Liquidation registry contract address
 (define-data-var total-borrowed uint u0) ;; Total amount borrowed across all loans
 (define-data-var last-price uint u0) ;; Cached STX price from oracle
 (define-data-var last-price-block uint u0) ;; Block height when price was last cached
@@ -59,7 +63,7 @@
   }
 ) ;; Historical loan event entries for borrowers
 
-(define-public (configure (oracle principal) (vault principal) (ausd principal))
+(define-public (configure (oracle principal) (vault principal) (ausd principal) (liquidation principal))
   ;; Configure contract dependencies
   ;; Only callable by contract owner
   (begin
@@ -67,6 +71,7 @@
     (var-set oracle-contract oracle)
     (var-set vault-contract vault)
     (var-set ausd-contract ausd)
+    (var-set liquidation-contract liquidation)
     (ok true)
   )
 )
@@ -79,7 +84,7 @@
     (if (and (> cached-block u0) (<= (- current-block cached-block) u10))
       (ok (var-get last-price))
       (let ((new-price (contract-call? .oracle get-price)))
-        (var-set last-price (unwrap! new-price (err u0)))
+        (var-set last-price (unwrap! new-price ERR-ORACLE-ERROR))
         (var-set last-price-block current-block)
         new-price
       )
@@ -150,7 +155,7 @@
   )
 )
 
-(define-public (get-loan-event-count (borrower principal))
+(define-read-only (get-loan-event-count (borrower principal))
   ;; Get number of recorded loan events for a borrower
   (ok (match (map-get? loan-event-count borrower)
         count count
@@ -158,7 +163,7 @@
       ))
 )
 
-(define-public (get-last-loan-event (borrower principal))
+(define-read-only (get-last-loan-event (borrower principal))
   ;; Get the last recorded loan event for a borrower
   (let ((count (match (map-get? loan-event-count borrower)
                  c c
@@ -298,20 +303,31 @@
   )
 )
 
+
+(define-private (compute-total-debt (loan { principal-amount: uint, interest-accrued: uint, collateral-locked: uint, opened-at-block: uint, last-accrual-block: uint }))
+  ;; Calculate total debt including pending interest without mutating state
+  (let (
+    (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+    (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+  )
+    (+ (get principal-amount loan) (get interest-accrued loan) pending-interest)
+  )
+)
+
 (define-public (liquidate (borrower principal))
   ;; Liquidate an undercollateralized loan
   ;; Seizes collateral and burns debt
+  ;; Uses compute-total-debt instead of accrue-interest to avoid wasteful state mutation
   (let (
-    (accrued (accrue-interest borrower)) ;; Accrue interest before liquidation
     (loan (unwrap! (map-get? loans borrower) ERR-NO-ACTIVE-LOAN))
     (price (unwrap! (get-stx-price) ERR-ORACLE-ERROR))
     (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
-    (total-owed (+ (get principal-amount loan) (get interest-accrued loan)))
+    (total-owed (compute-total-debt loan))
     (health-factor (calculate-health-factor collateral-value-usd total-owed)) ;; Check if position is unhealthy
     (collateral-to-seize (+ (get collateral-locked loan)
                             (/ (* (get collateral-locked loan) LIQUIDATION_BONUS) RATIO_PRECISION))) ;; Include bonus
   )
-    (asserts! (< health-factor LIQUIDATION_THRESHOLD) ERR-HEALTHY-POSITION)
+    (asserts! (<= health-factor LIQUIDATION_HEALTH_FACTOR) ERR-HEALTHY-POSITION)
     ;; Burn debt
     (try! (contract-call? .ausd-token burn total-owed tx-sender))
     ;; Seize collateral
@@ -319,6 +335,8 @@
             (if (<= collateral-to-seize (get collateral-locked loan)) collateral-to-seize (get collateral-locked loan)) tx-sender))
     ;; Record liquidation event and remove loan
     (record-loan-event borrower LOAN-EVENT-LIQUIDATE total-owed u0)
+    ;; Record liquidation in protocol registry
+    (try! (contract-call? .liquidation record-liquidation tx-sender borrower total-owed collateral-to-seize))
     (map-delete loans borrower)
     (var-set total-borrowed (- (var-get total-borrowed) (get principal-amount loan)))
     (ok true)
@@ -362,4 +380,148 @@
     )
     e (err e)
   )
+)
+
+(define-read-only (get-total-debt (borrower principal))
+  ;; Return principal + all accrued interest including pending interest since last accrual
+  (match (map-get? loans borrower)
+    loan
+    (let (
+      (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+      (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+    )
+      (ok (+ (get principal-amount loan) (get interest-accrued loan) pending-interest))
+    )
+    (ok u0)
+  )
+)
+
+(define-read-only (get-estimated-interest (borrower principal))
+  ;; Return total interest (stored accrued + pending since last accrual block) without state change
+  (match (map-get? loans borrower)
+    loan
+    (let (
+      (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+      (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+    )
+      (ok (+ (get interest-accrued loan) pending-interest))
+    )
+    (ok u0)
+  )
+)
+
+(define-read-only (is-liquidatable (borrower principal))
+  ;; Return true when the borrower's current health factor is below the liquidation threshold
+  (match (map-get? loans borrower)
+    loan
+    (match (get-stx-price)
+      price
+      (let (
+        (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
+        (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+        (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+        (total-owed (+ (get principal-amount loan) (get interest-accrued loan) pending-interest))
+        (health (calculate-health-factor collateral-value-usd total-owed))
+      )
+        (ok (<= health LIQUIDATION_HEALTH_FACTOR))
+      )
+      e (err e)
+    )
+    (ok false)
+  )
+)
+
+(define-read-only (get-collateral-ratio (borrower principal))
+  ;; Return current LTV ratio: total_debt / collateral_value * RATIO_PRECISION
+  (match (map-get? loans borrower)
+    loan
+    (match (get-stx-price)
+      price
+      (let (
+        (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
+        (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+        (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+        (total-owed (+ (get principal-amount loan) (get interest-accrued loan) pending-interest))
+      )
+        (if (is-eq collateral-value-usd u0)
+          (ok u0)
+          (ok (/ (* total-owed RATIO_PRECISION) collateral-value-usd))
+        )
+      )
+      e (err e)
+    )
+    (ok u0)
+  )
+)
+
+(define-read-only (get-borrower-snapshot (borrower principal))
+  ;; Return a full position snapshot in a single call for efficient UI rendering
+  (match (map-get? loans borrower)
+    loan
+    (match (get-stx-price)
+      price
+      (let (
+        (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
+        (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+        (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+        (estimated-interest (+ (get interest-accrued loan) pending-interest))
+        (total-owed (+ (get principal-amount loan) estimated-interest))
+        (health (calculate-health-factor collateral-value-usd total-owed))
+      )
+        (ok (some {
+          principal: (get principal-amount loan),
+          collateral-locked: (get collateral-locked loan),
+          collateral-value-usd: collateral-value-usd,
+          estimated-interest: estimated-interest,
+          total-owed: total-owed,
+          health-factor: health,
+          is-liquidatable: (<= health LIQUIDATION_HEALTH_FACTOR)
+        }))
+      )
+      e (err e)
+    )
+    (ok none)
+  )
+)
+
+(define-constant SAFE_BORROW_RATIO u600) ;; 60% - conservative threshold below LTV_RATIO (70%)
+
+(define-read-only (get-safe-borrow-amount (collateral-amount uint))
+  ;; Return a conservative max borrow (60% LTV) giving more buffer before the 80% liquidation threshold
+  (match (get-stx-price)
+    price
+    (let ((collateral-value-usd (stx-to-usd collateral-amount price)))
+      (ok (/ (* collateral-value-usd SAFE_BORROW_RATIO) RATIO_PRECISION))
+    )
+    e (err e)
+  )
+)
+
+(define-read-only (get-liquidation-price (borrower principal))
+  ;; Return the oracle price at which this position becomes liquidatable
+  ;; Derived from: collateral_stx * price / 1e6 / total_owed < LIQUIDATION_THRESHOLD / RATIO_PRECISION
+  ;; => price < total_owed * 1e6 * LIQUIDATION_THRESHOLD / (collateral_stx * RATIO_PRECISION)
+  (match (map-get? loans borrower)
+    loan
+    (let (
+      (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+      (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+      (total-owed (+ (get principal-amount loan) (get interest-accrued loan) pending-interest))
+    )
+      (if (is-eq (get collateral-locked loan) u0)
+        (ok u0)
+        (ok (/ (* total-owed (* u1000000 LIQUIDATION_THRESHOLD))
+               (* (get collateral-locked loan) RATIO_PRECISION)))
+      )
+    )
+    (ok u0)
+  )
+)
+
+(define-read-only (get-interest-rate-info)
+  ;; Return protocol interest rate constants so callers can compute accrual off-chain
+  (ok {
+    rate-per-block: INTEREST_RATE_PER_BLOCK,
+    precision: INTEREST_PRECISION
+  })
 )

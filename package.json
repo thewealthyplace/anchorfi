@@ -14,6 +14,7 @@
     "test:vault": "vitest run tests/collateral-vault.test.ts",
     "test:lending-pool": "vitest run tests/lending-pool.test.ts",
     "test:liquidation": "vitest run tests/liquidation.test.ts",
+    "lint": "eslint tests/",
     "typecheck": "tsc --noEmit"
   },
   "author": "",

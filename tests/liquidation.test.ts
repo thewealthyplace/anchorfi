@@ -54,3 +54,15 @@ describe("liquidation", () => {
     expect(result).toBeOk(Cl.none());
   });
 });
+
+  it("liquidation registry rejects direct record-liquidation from non-lending-pool", () => {
+    const { result } = simnet.callPublicFn("liquidation", "record-liquidation",
+      [Cl.principal(wallet1), Cl.principal(wallet2), Cl.uint(100), Cl.uint(110)], wallet1);
+    expect(result).toBeErr(Cl.uint(500));
+  });
+
+  it("liquidation registry set-lending-pool requires owner", () => {
+    const { result } = simnet.callPublicFn("liquidation", "set-lending-pool",
+      [Cl.principal(wallet1)], wallet2);
+    expect(result).toBeErr(Cl.uint(500));
+  });

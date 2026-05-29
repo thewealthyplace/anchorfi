@@ -76,3 +76,38 @@ clarinet call lending-pool configure <oracle> <vault> <ausd>
 ## License
 
 MIT
+
+
+## Deployment
+
+1. Run `./scripts/deploy.sh [testnet|mainnet]`
+2. Configure contracts in order:
+   - `collateral-vault.set-lending-pool <lending-pool-address>`
+   - `ausd-token.set-minter <lending-pool-address>`
+   - `oracle.set-price <initial-stx-usd-price>`
+   - `lending-pool.configure <oracle> <vault> <ausd> <liquidation>`
+   - `liquidation.set-lending-pool <lending-pool-address>`
+3. Verify deployment with contract calls
+
+### Liquidation Registry
+
+The protocol includes a liquidation registry (`contracts/liquidation.clar`) that tracks:
+- Each liquidation event with borrower, liquidator, and amounts
+- Per-liquidator statistics (total liquidations, profit)
+- Aggregate totals (total liquidations, total value)
+
+This integration provides transparency and incentive tracking for liquidators.
+
+## Quick Start
+
+```bash
+# Install Clarinet
+# brew install clarinet  # macOS
+
+# Check contracts
+clarinet check
+
+# Run tests
+npm install
+npm test
+```

@@ -12,3 +12,8 @@ coverage
 costs-reports.json
 node_modules
 .vercel
+
+# Environment variables
+.env
+.env.local
+.env.*.local
