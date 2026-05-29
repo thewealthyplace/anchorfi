@@ -3523,3 +3523,8 @@ describe("lending-pool", () => {
     const { result } = simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(0), Cl.uint(0)], wallet1);
     expect((result as any).type).toBe("err");
   });
+
+  it("error handling scenario #7 on lending-pool", () => {
+    const { result } = simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(0), Cl.uint(0)], wallet1);
+    expect((result as any).type).toBe("err");
+  });
