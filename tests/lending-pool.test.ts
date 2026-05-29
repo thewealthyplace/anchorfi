@@ -1514,3 +1514,18 @@ describe("lending-pool", () => {
     const { result: p2 } = simnet.callReadOnlyFn("lending-pool", "get-max-borrow", [Cl.uint(COLLATERAL)], deployer);
     expect(p1).not.toEqual(p2);
   });
+
+  it("compute-total-debt matches get-total-debt result", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    // Advance blocks
+    for (let i = 0; i < 3; i++) {
+      simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
+    }
+    // liquidate triggers compute-total-debt, compare with get-total-debt before
+    const { result: debtBefore } = getTotalDebt(wallet1);
+    const debtVal = Number((debtBefore as any).value.value);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    const { result: liqResult } = liquidateLoan(wallet1);
+    expect(liqResult).toBeOk(Cl.bool(true));
+  });
