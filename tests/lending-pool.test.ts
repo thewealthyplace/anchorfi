@@ -1448,3 +1448,14 @@ describe("lending-pool", () => {
     const stats = (result as any).value.value;
     expect(Number(stats["total-liquidations"].value)).toBe(1);
   });
+
+  it("liquidation event details are queryable by event ID", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = simnet.callReadOnlyFn("liquidation", "get-liquidation-event", [Cl.uint(0)], deployer);
+    const event = (result as any).value.value;
+    expect(event).toBeDefined();
+    expect(event.borrower.value).toBe(wallet1);
+  });
