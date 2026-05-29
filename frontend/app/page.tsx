@@ -58,7 +58,7 @@ export default function Home() {
           AnchorFi
         </span>
         <a
-          href="https://github.com/thewealthyplace/anchorfi"
+          href={process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/thewealthyplace/anchorfi"}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 text-sm text-[#8b949e] hover:text-white transition-colors"
@@ -83,7 +83,7 @@ export default function Home() {
         </p>
         <div className="flex gap-4 pt-2">
           <a
-            href="https://github.com/thewealthyplace/anchorfi"
+            href={process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/thewealthyplace/anchorfi"}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-black hover:bg-white/90 transition-colors"
@@ -175,7 +175,7 @@ export default function Home() {
       <footer className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-[#21262d] pt-8 text-sm text-[#8b949e]">
         <span>AnchorFi — open source, MIT license</span>
         <a
-          href="https://github.com/thewealthyplace/anchorfi"
+          href={process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/thewealthyplace/anchorfi"}
           target="_blank"
           rel="noopener noreferrer"
           className="hover:text-white transition-colors"
