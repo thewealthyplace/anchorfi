@@ -1413,3 +1413,13 @@ describe("lending-pool", () => {
     const { result: health } = getHealthFactor(wallet1);
     expect(Number((health as any).value.value)).toBeLessThanOrEqual(1250);
   });
+
+  it("liquidation event recorded in registry after liquidate", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    const { result: liqResult } = liquidateLoan(wallet1);
+    expect(liqResult).toBeOk(Cl.bool(true));
+    const { result: regResult } = simnet.callReadOnlyFn("liquidation", "get-total-liquidations", [], deployer);
+    expect(regResult).toBeOk(Cl.uint(1));
+  });
