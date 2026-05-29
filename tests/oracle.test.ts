@@ -99,3 +99,14 @@ describe("oracle", () => {
     const { result } = simnet.callReadOnlyFn("oracle", "get-price", [], deployer);
     expect(result).toBeOk(Cl.uint(2_000_000));
   });
+
+  it("oracle handles price updates at max boundary", () => {
+    const { result } = simnet.callPublicFn("oracle", "set-price", [Cl.uint(18446744073709551615)], deployer);
+    expect(result).toBeOk(Cl.uint(18446744073709551615));
+  });
+
+  it("oracle get-price-unsafe returns last set value", () => {
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_500_000)], deployer);
+    const { result } = simnet.callReadOnlyFn("oracle", "get-price-unsafe", [], deployer);
+    expect(result).toBeOk(Cl.uint(1_500_000));
+  });
