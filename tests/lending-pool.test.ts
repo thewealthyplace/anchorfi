@@ -3588,3 +3588,9 @@ describe("lending-pool", () => {
     const { result } = simnet.callPublicFn("lending-pool", "borrow", [Cl.uint(0), Cl.uint(0)], wallet1);
     expect((result as any).type).toBe("err");
   });
+
+  it("configure test #1", () => {
+    const { result } = simnet.callPublicFn("lending-pool", "configure",
+      [Cl.principal(deployer), Cl.principal(deployer), Cl.principal(deployer), Cl.principal(deployer)], wallet1);
+    expect(result).toBeErr(Cl.uint(400));
+  });
