@@ -13,7 +13,10 @@ export const BORROW_AMOUNT = 1_000_000_000; // $1000 aUSD
 // The deployer is the initial minter before set-minter hands control to lending-pool.
 const INTEREST_RESERVE = 10_000_000;
 
-export function setupProtocol() {
+// Track whether liquidation registry is configured for the lending pool
+let liquidationConfigured = false;
+
+export function setupProtocol(liquidationAddress?: string) {
   // Mint interest reserve while deployer is still the minter
   simnet.callPublicFn("ausd-token", "mint",
     [Cl.uint(INTEREST_RESERVE), Cl.principal(wallet1)], deployer);
