@@ -81,3 +81,17 @@ describe("collateral-vault", () => {
     const { result } = simnet.callPublicFn("collateral-vault", "lock-collateral", [Cl.principal(wallet1), Cl.uint(100)], deployer);
     expect(result).toBeErr(Cl.uint(304));
   });
+
+  it("vault total-collateral increases after multiple deposits", () => {
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(500_000_000)], wallet1);
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(500_000_000)], wallet1);
+    const { result } = simnet.callReadOnlyFn("collateral-vault", "get-total-collateral", [], deployer);
+    expect(result).toBeOk(Cl.uint(1_000_000_000));
+  });
+
+  it("vault total-collateral decreases after withdrawal", () => {
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(1_000_000_000)], wallet1);
+    simnet.callPublicFn("collateral-vault", "withdraw", [Cl.uint(400_000_000)], wallet1);
+    const { result } = simnet.callReadOnlyFn("collateral-vault", "get-total-collateral", [], deployer);
+    expect(result).toBeOk(Cl.uint(600_000_000));
+  });
