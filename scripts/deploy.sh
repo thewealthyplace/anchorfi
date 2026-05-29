@@ -4,6 +4,8 @@
 
 set -e
 
+trap 'echo "ERROR: Deployment failed at line $LINENO"; exit 1' ERR
+
 NETWORK=${1:-testnet}
 
 echo "Deploying AnchorFi to $NETWORK..."
