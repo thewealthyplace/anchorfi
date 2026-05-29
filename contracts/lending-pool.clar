@@ -324,6 +324,8 @@
             (if (<= collateral-to-seize (get collateral-locked loan)) collateral-to-seize (get collateral-locked loan)) tx-sender))
     ;; Record liquidation event and remove loan
     (record-loan-event borrower LOAN-EVENT-LIQUIDATE total-owed u0)
+    ;; Record liquidation in protocol registry
+    (try! (contract-call? .liquidation record-liquidation tx-sender borrower total-owed collateral-to-seize))
     (map-delete loans borrower)
     (var-set total-borrowed (- (var-get total-borrowed) (get principal-amount loan)))
     (ok true)
