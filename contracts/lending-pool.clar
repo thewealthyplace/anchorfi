@@ -84,7 +84,7 @@
     (if (and (> cached-block u0) (<= (- current-block cached-block) u10))
       (ok (var-get last-price))
       (let ((new-price (contract-call? .oracle get-price)))
-        (var-set last-price (unwrap! new-price (err u0)))
+        (var-set last-price (unwrap! new-price ERR-ORACLE-ERROR))
         (var-set last-price-block current-block)
         new-price
       )
