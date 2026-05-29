@@ -62,7 +62,7 @@
   }
 ) ;; Historical loan event entries for borrowers
 
-(define-public (configure (oracle principal) (vault principal) (ausd principal))
+(define-public (configure (oracle principal) (vault principal) (ausd principal) (liquidation principal))
   ;; Configure contract dependencies
   ;; Only callable by contract owner
   (begin
@@ -70,6 +70,7 @@
     (var-set oracle-contract oracle)
     (var-set vault-contract vault)
     (var-set ausd-contract ausd)
+    (var-set liquidation-contract liquidation)
     (ok true)
   )
 )
