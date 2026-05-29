@@ -1241,3 +1241,11 @@ describe("lending-pool", () => {
     const { result } = isLiquidatable(wallet1);
     expect(result).toBeOk(Cl.bool(false));
   });
+
+  it("liquidate wallet2 succeeds when wallet2 LTV exceeds 80%", () => {
+    setupProtocol();
+    borrowLoan(wallet2);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_200_000)], deployer);
+    const { result } = liquidateLoan(wallet2);
+    expect(result).toBeOk(Cl.bool(true));
+  });
