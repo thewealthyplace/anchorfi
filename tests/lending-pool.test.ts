@@ -1423,3 +1423,18 @@ describe("lending-pool", () => {
     const { result: regResult } = simnet.callReadOnlyFn("liquidation", "get-total-liquidations", [], deployer);
     expect(regResult).toBeOk(Cl.uint(1));
   });
+
+  it("multiple liquidations increment registry counter", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    // Setup for wallet2
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(COLLATERAL)], wallet1);
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = simnet.callReadOnlyFn("liquidation", "get-total-liquidations", [], deployer);
+    expect(result).toBeOk(Cl.uint(2));
+  });
