@@ -992,6 +992,57 @@ describe("lending-pool", () => {
   });
 
 
+  it("liquidate succeeds at exactly 80% LTV boundary", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_250_000)], deployer);
+    const { result } = liquidateLoan(wallet1);
+    expect(result).toBeOk(Cl.bool(true));
+  });
+
+
+  it("collateral ratio equals 800 at 80% LTV threshold", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_250_000)], deployer);
+    const { result } = getCollateralRatio(wallet1);
+    const ratio = Number((result as any).value.value);
+    expect(ratio).toBe(800);
+  });
+
+
+  it("get-borrower-snapshot is-liquidatable is true when LTV exceeds 80%", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_200_000)], deployer);
+    const { result } = getBorrowerSnapshot(wallet1);
+    const snap = (result as any).value.value.value;
+    expect(snap["is-liquidatable"].value).toBe(true);
+  });
+
+
+  it("get-borrower-snapshot is-liquidatable is false when LTV is below 80%", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_300_000)], deployer);
+    const { result } = getBorrowerSnapshot(wallet1);
+    const snap = (result as any).value.value.value;
+    expect(snap["is-liquidatable"].value).toBe(false);
+  });
+
+
+  it("get-borrower-snapshot health-factor matches get-health-factor at 80% LTV", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_250_000)], deployer);
+    const { result: snapRes } = getBorrowerSnapshot(wallet1);
+    const { result: healthRes } = getHealthFactor(wallet1);
+    const snapHealth = Number((snapRes as any).value.value.value["health-factor"].value);
+    const health = Number((healthRes as any).value.value);
+    expect(snapHealth).toBe(health);
+  });
+
+
   it("collateral ratio and health factor are consistent for the same position", () => {
     setupProtocol();
     borrowLoan(wallet1);
