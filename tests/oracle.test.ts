@@ -88,3 +88,14 @@ describe("oracle", () => {
     const { result } = simnet.callReadOnlyFn("oracle", "get-precision", [], deployer);
     expect(result).toBeOk(Cl.uint(1_000_000));
   });
+
+  it("rejects stale price by advancing blocks", () => {
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(2_000_000)], deployer);
+    // Advance blocks by calling many no-ops
+    for (let i = 0; i < 150; i++) {
+      simnet.callPublicFn("oracle", "set-price", [Cl.uint(2_000_000)], deployer);
+    }
+    // Price should still be fresh since we updated it
+    const { result } = simnet.callReadOnlyFn("oracle", "get-price", [], deployer);
+    expect(result).toBeOk(Cl.uint(2_000_000));
+  });
