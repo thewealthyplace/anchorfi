@@ -317,12 +317,12 @@
 (define-public (liquidate (borrower principal))
   ;; Liquidate an undercollateralized loan
   ;; Seizes collateral and burns debt
+  ;; Uses compute-total-debt instead of accrue-interest to avoid wasteful state mutation
   (let (
-    (accrued (accrue-interest borrower)) ;; Accrue interest before liquidation
     (loan (unwrap! (map-get? loans borrower) ERR-NO-ACTIVE-LOAN))
     (price (unwrap! (get-stx-price) ERR-ORACLE-ERROR))
     (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
-    (total-owed (+ (get principal-amount loan) (get interest-accrued loan)))
+    (total-owed (compute-total-debt loan))
     (health-factor (calculate-health-factor collateral-value-usd total-owed)) ;; Check if position is unhealthy
     (collateral-to-seize (+ (get collateral-locked loan)
                             (/ (* (get collateral-locked loan) LIQUIDATION_BONUS) RATIO_PRECISION))) ;; Include bonus
