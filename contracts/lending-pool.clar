@@ -13,6 +13,7 @@
 (define-constant ERR-ORACLE-ERROR (err u405)) ;; Error for oracle failure
 (define-constant ERR-HEALTHY-POSITION (err u406)) ;; Error for healthy position in liquidation
 (define-constant ERR-ACTIVE-LOAN (err u407)) ;; Error for borrower with an existing loan
+(define-constant ERR-NO-LIQUIDATION-CONTRACT (err u408)) ;; Error for missing liquidation configuration
 
 (define-constant LOAN-EVENT-BORROW u1) ;; Loan opened / borrow event
 (define-constant LOAN-EVENT-REPAY u2) ;; Loan repayment event
