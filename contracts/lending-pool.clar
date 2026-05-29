@@ -303,6 +303,17 @@
   )
 )
 
+
+(define-private (compute-total-debt (loan { principal-amount: uint, interest-accrued: uint, collateral-locked: uint, opened-at-block: uint, last-accrual-block: uint }))
+  ;; Calculate total debt including pending interest without mutating state
+  (let (
+    (blocks-elapsed (- stacks-block-height (get last-accrual-block loan)))
+    (pending-interest (calculate-interest (get principal-amount loan) blocks-elapsed))
+  )
+    (+ (get principal-amount loan) (get interest-accrued loan) pending-interest)
+  )
+)
+
 (define-public (liquidate (borrower principal))
   ;; Liquidate an undercollateralized loan
   ;; Seizes collateral and burns debt
