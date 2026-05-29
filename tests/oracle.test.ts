@@ -110,3 +110,13 @@ describe("oracle", () => {
     const { result } = simnet.callReadOnlyFn("oracle", "get-price-unsafe", [], deployer);
     expect(result).toBeOk(Cl.uint(1_500_000));
   });
+
+  it("oracle transfer-ownership emits event", () => {
+    const { result } = simnet.callPublicFn("oracle", "transfer-ownership", [Cl.principal(wallet1)], deployer);
+    expect(result).toBeOk(Cl.principal(wallet1));
+  });
+
+  it("oracle get-last-updated returns zero before any price set", () => {
+    const { result } = simnet.callReadOnlyFn("oracle", "get-last-updated", [], deployer);
+    expect(result).toBeOk(Cl.uint(0));
+  });
