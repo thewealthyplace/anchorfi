@@ -78,3 +78,13 @@ describe("oracle", () => {
     const { result } = simnet.callReadOnlyFn("oracle", "get-last-updated", [], deployer);
     expect(result).toBeOk(expect.anything());
   });
+
+  it("get-owner returns deployer by default", () => {
+    const { result } = simnet.callReadOnlyFn("oracle", "get-owner", [], deployer);
+    expect(result).toBeOk(Cl.principal(deployer));
+  });
+
+  it("get-precision returns 1000000", () => {
+    const { result } = simnet.callReadOnlyFn("oracle", "get-precision", [], deployer);
+    expect(result).toBeOk(Cl.uint(1_000_000));
+  });
