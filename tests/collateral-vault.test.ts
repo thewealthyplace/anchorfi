@@ -176,3 +176,27 @@ describe("collateral-vault", () => {
       [Cl.principal(wallet1)], wallet1);
     expect(result).toBeOk(Cl.uint(700_000_000));
   });
+
+  it("vault deposit from wallet2 is independent from wallet1", () => {
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(500_000_000)], wallet1);
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(300_000_000)], wallet2);
+    const { result: v1 } = simnet.callReadOnlyFn("collateral-vault", "get-vault", [Cl.principal(wallet1)], wallet1);
+    const { result: v2 } = simnet.callReadOnlyFn("collateral-vault", "get-vault", [Cl.principal(wallet2)], wallet2);
+    expect(Number(((v1 as any).value.value).deposited.value)).toBe(500_000_000);
+    expect(Number(((v2 as any).value.value).deposited.value)).toBe(300_000_000);
+  });
+
+  it("vault allows multiple lock and unlock cycles", () => {
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(1_000_000_000)], wallet1);
+    simnet.callPublicFn("collateral-vault", "set-lending-pool",
+      [Cl.principal(`${deployer}.lending-pool`)], deployer);
+    simnet.callPublicFn("collateral-vault", "lock-collateral",
+      [Cl.principal(wallet1), Cl.uint(300_000_000)], wallet1);
+    simnet.callPublicFn("collateral-vault", "unlock-collateral",
+      [Cl.principal(wallet1), Cl.uint(200_000_000)], wallet1);
+    simnet.callPublicFn("collateral-vault", "lock-collateral",
+      [Cl.principal(wallet1), Cl.uint(400_000_000)], wallet1);
+    const { result } = simnet.callReadOnlyFn("collateral-vault", "get-vault", [Cl.principal(wallet1)], wallet1);
+    const v = (result as any).value.value;
+    expect(Number(v.locked.value)).toBe(500_000_000);
+  });
