@@ -1529,3 +1529,14 @@ describe("lending-pool", () => {
     const { result: liqResult } = liquidateLoan(wallet1);
     expect(liqResult).toBeOk(Cl.bool(true));
   });
+
+  it("lending pool returns proper error codes for all invalid operations", () => {
+    setupProtocol();
+    // No active loan
+    expect(repayLoan(wallet1).result).toBeErr(Cl.uint(403));
+    // Already has loan
+    borrowLoan(wallet1);
+    expect(borrowLoan(wallet1).result).toBeErr(Cl.uint(407));
+    // Zero borrow
+    expect(borrowLoan(wallet2, 0).result).toBeErr(Cl.uint(402));
+  });
