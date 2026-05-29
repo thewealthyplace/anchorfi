@@ -200,3 +200,26 @@ describe("collateral-vault", () => {
     const v = (result as any).value.value;
     expect(Number(v.locked.value)).toBe(500_000_000);
   });
+
+  it("vault withdraw after lock only uses unlocked portion", () => {
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(1_000_000_000)], wallet1);
+    simnet.callPublicFn("collateral-vault", "set-lending-pool",
+      [Cl.principal(`${deployer}.lending-pool`)], deployer);
+    simnet.callPublicFn("collateral-vault", "lock-collateral",
+      [Cl.principal(wallet1), Cl.uint(400_000_000)], wallet1);
+    // Withdraw 300M from unlocked (600M available)
+    const { result } = simnet.callPublicFn("collateral-vault", "withdraw",
+      [Cl.uint(300_000_000)], wallet1);
+    expect(result).toBeOk(Cl.uint(300_000_000));
+  });
+
+  it("vault cannot withdraw locked collateral", () => {
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(1_000_000_000)], wallet1);
+    simnet.callPublicFn("collateral-vault", "set-lending-pool",
+      [Cl.principal(`${deployer}.lending-pool`)], deployer);
+    simnet.callPublicFn("collateral-vault", "lock-collateral",
+      [Cl.principal(wallet1), Cl.uint(700_000_000)], wallet1);
+    const { result } = simnet.callPublicFn("collateral-vault", "withdraw",
+      [Cl.uint(500_000_000)], wallet1);
+    expect(result).toBeErr(Cl.uint(303));
+  });
