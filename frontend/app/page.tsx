@@ -62,6 +62,7 @@ export default function Home() {
           href={process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/thewealthyplace/anchorfi"}
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="View on GitHub"
           className="flex items-center gap-2 text-sm text-[#8b949e] hover:text-white transition-colors"
         >
           <GitHubIcon />
