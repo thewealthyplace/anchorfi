@@ -1403,3 +1403,13 @@ describe("lending-pool", () => {
       prevHealth = health;
     }
   });
+
+  it("liquidation price equals oracle price when health factor equals 1250", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result: liqPrice } = getLiquidationPrice(wallet1);
+    const expectedPrice = Number((liqPrice as any).value.value);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(expectedPrice)], deployer);
+    const { result: health } = getHealthFactor(wallet1);
+    expect(Number((health as any).value.value)).toBeLessThanOrEqual(1250);
+  });
