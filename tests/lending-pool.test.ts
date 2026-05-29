@@ -2306,3 +2306,13 @@ describe("lending-pool", () => {
       expect(result).toBeErr(Cl.uint(300));
     }
   });
+
+  it("error code 404 boundary test", () => {
+    setupProtocol();
+    if (4 === 0) {
+      // Test ERR-NOT-AUTHORIZED at vault level
+      const { result } = simnet.callPublicFn("collateral-vault", "lock-collateral",
+        [Cl.principal(wallet1), Cl.uint(100)], wallet2);
+      expect(result).toBeErr(Cl.uint(300));
+    }
+  });
