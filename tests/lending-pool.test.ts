@@ -1610,3 +1610,9 @@ describe("lending-pool", () => {
     const { result } = liquidateLoan(wallet1);
     expect(result).toBeOk(Cl.bool(true));
   });
+
+  it("get-max-borrow returns uint type", () => {
+    const { result } = getMaxBorrow();
+    expect((result as any).type).toBe("ok");
+    expect((result as any).value.type).toBe("uint");
+  });
