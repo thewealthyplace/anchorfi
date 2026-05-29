@@ -1009,6 +1009,32 @@ describe("lending-pool", () => {
   });
 
 
+  it("is-liquidatable returns false when LTV is exactly 70% max borrow", () => {
+    setupProtocol();
+    borrowLoan(wallet1, 1_400_000_000);
+    const { result } = isLiquidatable(wallet1);
+    expect(result).toBeOk(Cl.bool(false));
+  });
+
+
+  it("is-liquidatable returns true when LTV exceeds 80% liquidation threshold", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_200_000)], deployer);
+    const { result } = isLiquidatable(wallet1);
+    expect(result).toBeOk(Cl.bool(true));
+  });
+
+
+  it("is-liquidatable returns false when LTV is exactly 79% below threshold", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_270_000)], deployer);
+    const { result } = isLiquidatable(wallet1);
+    expect(result).toBeOk(Cl.bool(false));
+  });
+
+
   it("snapshot is none for both wallets before any borrow", () => {
     setupProtocol();
     const { result: s1 } = getBorrowerSnapshot(wallet1);
