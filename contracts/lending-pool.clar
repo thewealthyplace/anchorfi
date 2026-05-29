@@ -424,7 +424,7 @@
   ;; Return current LTV ratio: total_debt / collateral_value * RATIO_PRECISION
   (match (map-get? loans borrower)
     loan
-    (match (contract-call? .oracle get-price)
+    (match (get-stx-price)
       price
       (let (
         (collateral-value-usd (stx-to-usd (get collateral-locked loan) price))
