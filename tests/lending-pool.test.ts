@@ -1222,3 +1222,14 @@ describe("lending-pool", () => {
       expect(result).toBeOk(Cl.bool(false));
     }
   });
+
+  it("is-liquidatable boundary at price 1250000 produces LTV of exactly 80%", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_250_000)], deployer);
+    const { result: ratioRes } = getCollateralRatio(wallet1);
+    const { result: liqRes } = isLiquidatable(wallet1);
+    const ratio = Number((ratioRes as any).value.value);
+    expect(ratio).toBe(800);
+    expect(liqRes).toBeOk(Cl.bool(true));
+  });
