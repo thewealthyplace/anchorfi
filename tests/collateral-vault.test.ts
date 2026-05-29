@@ -70,3 +70,14 @@ describe("collateral-vault", () => {
     expect(result).toBeOk(Cl.uint(DEPOSIT_AMOUNT));
   });
 });
+
+  it("cannot deposit zero STX", () => {
+    const { result } = simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(0)], wallet1);
+    expect(result).toBeErr(Cl.uint(301));
+  });
+
+  it("cannot lock more than deposited", () => {
+    // This should fail since no deposit was made
+    const { result } = simnet.callPublicFn("collateral-vault", "lock-collateral", [Cl.principal(wallet1), Cl.uint(100)], deployer);
+    expect(result).toBeErr(Cl.uint(304));
+  });
