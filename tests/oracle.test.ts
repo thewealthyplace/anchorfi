@@ -190,3 +190,8 @@ describe("oracle", () => {
     const { result } = simnet.callReadOnlyFn("oracle", "get-price", [], deployer);
     expect(result).toBeOk(Cl.uint(price));
   });
+
+  it("oracle ownership test #1", () => {
+    const { result } = simnet.callReadOnlyFn("oracle", "get-owner", [], deployer);
+    expect(result).toBeOk(expect.anything());
+  });
