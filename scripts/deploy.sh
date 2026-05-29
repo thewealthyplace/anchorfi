@@ -35,6 +35,8 @@ esac
 
 echo "Deployment complete."
 echo ""
+echo "In case of failure, run: clarinet deployments apply --revert"
+echo ""
 echo "Post-deployment steps:"
 echo "1. Call collateral-vault.set-lending-pool <lending-pool-address>"
 echo "2. Call ausd-token.set-minter <lending-pool-address>"
