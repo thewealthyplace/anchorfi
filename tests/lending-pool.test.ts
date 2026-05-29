@@ -1182,3 +1182,17 @@ describe("lending-pool", () => {
   });
 
 });
+
+  it("health factor trend matches oracle price inversely for multiple price points", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const prices = [2_000_000, 1_800_000, 1_500_000, 1_300_000, 1_200_000];
+    let prevHealth = Number.MAX_SAFE_INTEGER;
+    for (const price of prices) {
+      simnet.callPublicFn("oracle", "set-price", [Cl.uint(price)], deployer);
+      const { result } = getHealthFactor(wallet1);
+      const health = Number((result as any).value.value);
+      expect(health).toBeLessThan(prevHealth);
+      prevHealth = health;
+    }
+  });
