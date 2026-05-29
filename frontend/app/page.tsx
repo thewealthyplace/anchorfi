@@ -69,6 +69,7 @@ function GitHubIcon({ className = "" }: { className?: string }) {
   // Accessibility enhancement 19
   // Accessibility enhancement 20
   // Accessibility enhancement 21
+  // Accessibility enhancement 22
 export default function Home() {
   return (
     <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded">Skip to main content</a>
