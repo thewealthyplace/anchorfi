@@ -1306,3 +1306,12 @@ describe("lending-pool", () => {
     const { result } = getHealthFactor(wallet1);
     expect(result).toBeOk(expect.anything());
   });
+
+  it("health factor edge case scenario variant 2", () => {
+    setupProtocol();
+    borrowLoan(wallet2);
+    const price = 1750000;
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(price)], deployer);
+    const { result } = getHealthFactor(wallet2);
+    expect(result).toBeOk(expect.anything());
+  });
