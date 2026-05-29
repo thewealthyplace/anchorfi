@@ -23,7 +23,7 @@
 (define-constant LIQUIDATION_THRESHOLD u800) ;; 80.0% LTV liquidation threshold
 (define-constant LIQUIDATION_BONUS u100)    ;; 10.0% liquidation bonus
 (define-constant RATIO_PRECISION u1000) ;; Precision for ratio calculations (1000 = 100%)
-(define-constant LIQUIDATION_HEALTH_FACTOR (/ (* RATIO_PRECISION RATIO_PRECISION) LIQUIDATION_THRESHOLD)) ;; 1250 = minimum health factor before liquidation
+(define-constant LIQUIDATION_HEALTH_FACTOR (/ (* RATIO_PRECISION RATIO_PRECISION) LIQUIDATION_THRESHOLD)) ;; 1250 = collateral/debt * 1000 at 80% LTV (1000*1000/800)
 (define-constant INTEREST_RATE_PER_BLOCK u10) ;; 0.001% per block (~5% APR at 10min blocks)
 (define-constant INTEREST_PRECISION u1000000) ;; Precision for interest calculations (1e6)
 
