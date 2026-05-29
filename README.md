@@ -97,3 +97,17 @@ The protocol includes a liquidation registry (`contracts/liquidation.clar`) that
 - Aggregate totals (total liquidations, total value)
 
 This integration provides transparency and incentive tracking for liquidators.
+
+## Quick Start
+
+```bash
+# Install Clarinet
+# brew install clarinet  # macOS
+
+# Check contracts
+clarinet check
+
+# Run tests
+npm install
+npm test
+```
