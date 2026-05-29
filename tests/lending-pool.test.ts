@@ -1212,3 +1212,13 @@ describe("lending-pool", () => {
       }
     }
   });
+
+  it("is-liquidatable returns false for multiple healthy price points", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    for (const price of [2_000_000, 1_800_000, 1_600_000, 1_400_000]) {
+      simnet.callPublicFn("oracle", "set-price", [Cl.uint(price)], deployer);
+      const { result } = isLiquidatable(wallet1);
+      expect(result).toBeOk(Cl.bool(false));
+    }
+  });
