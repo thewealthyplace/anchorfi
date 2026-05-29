@@ -1500,3 +1500,17 @@ describe("lending-pool", () => {
     const { result: p2 } = simnet.callReadOnlyFn("lending-pool", "get-max-borrow", [Cl.uint(COLLATERAL)], deployer);
     expect(p1).toEqual(p2);
   });
+
+  it("price cache refreshes after 10+ blocks", () => {
+    setupProtocol();
+    const { result: p1 } = simnet.callReadOnlyFn("lending-pool", "get-max-borrow", [Cl.uint(COLLATERAL)], deployer);
+    // Advance many blocks
+    for (let i = 0; i < 15; i++) {
+      simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
+    }
+    // Change oracle price
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(3_000_000)], deployer);
+    // Next call should use new price
+    const { result: p2 } = simnet.callReadOnlyFn("lending-pool", "get-max-borrow", [Cl.uint(COLLATERAL)], deployer);
+    expect(p1).not.toEqual(p2);
+  });
