@@ -1,6 +1,7 @@
 {
-  "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "installCommand": "npm install"
+  "env": {
+    "NEXT_PUBLIC_GITHUB_URL": "https://github.com/thewealthyplace/anchorfi",
+    "NEXT_PUBLIC_PROTOCOL_NAME": "AnchorFi"
+  },
+  "framework": "nextjs"
 }
