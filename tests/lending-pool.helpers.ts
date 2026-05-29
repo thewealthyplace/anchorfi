@@ -37,6 +37,14 @@ export function setupProtocol(liquidationAddress?: string) {
   simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
   simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(COLLATERAL)], wallet1);
   simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(COLLATERAL)], wallet2);
+  // Configure liquidation registry for lending pool
+  simnet.callPublicFn(
+    "liquidation",
+    "set-lending-pool",
+    [Cl.principal(\`\${deployer}.lending-pool\`)],
+    deployer
+  );
+  liquidationConfigured = true;
 }
 
 export function borrowLoan(borrower = wallet1, amount = BORROW_AMOUNT, collateral = COLLATERAL) {
