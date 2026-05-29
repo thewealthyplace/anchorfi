@@ -1196,3 +1196,19 @@ describe("lending-pool", () => {
       prevHealth = health;
     }
   });
+
+  it("liquidate succeeds at multiple price points below threshold", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    for (const price of [1_200_000, 1_000_000, 800_000, 500_000]) {
+      simnet.callPublicFn("oracle", "set-price", [Cl.uint(price)], deployer);
+      const { result } = liquidateLoan(wallet1);
+      expect(result).toBeOk(Cl.bool(true));
+      // Re-open loan for next iteration
+      if (price > 500_000) {
+        simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(COLLATERAL)], wallet1);
+        simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
+        borrowLoan(wallet1);
+      }
+    }
+  });
