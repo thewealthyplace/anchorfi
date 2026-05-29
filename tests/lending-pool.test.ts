@@ -1035,6 +1035,15 @@ describe("lending-pool", () => {
   });
 
 
+  it("is-liquidatable returns true when LTV slightly exceeds 80% boundary", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_249_000)], deployer);
+    const { result } = isLiquidatable(wallet1);
+    expect(result).toBeOk(Cl.bool(true));
+  });
+
+
   it("snapshot is none for both wallets before any borrow", () => {
     setupProtocol();
     const { result: s1 } = getBorrowerSnapshot(wallet1);
