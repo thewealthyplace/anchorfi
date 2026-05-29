@@ -1946,3 +1946,13 @@ describe("lending-pool", () => {
       [Cl.principal(wallet1)], deployer);
     expect(result).toBeOk(expect.anything());
   });
+
+  it("liquidation liquidator stats variant 2", () => {
+    setupProtocol();
+    borrowLoan(wallet2);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet2);
+    const { result } = simnet.callReadOnlyFn("liquidation", "get-liquidator-stats",
+      [Cl.principal(wallet2)], deployer);
+    expect(result).toBeOk(expect.anything());
+  });
