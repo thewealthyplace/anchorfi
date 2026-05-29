@@ -2546,3 +2546,12 @@ describe("lending-pool", () => {
     const { result } = getHealthFactor(wallet1);
     expect(Number((result as any).value.value)).toBeGreaterThan(0);
   });
+
+  it("liq reg integration test #1", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(500_000)], deployer);
+    liquidateLoan(wallet1);
+    const { result } = simnet.callReadOnlyFn("liquidation", "get-total-liquidations", [], deployer);
+    expect(result).toBeOk(Cl.uint(1));
+  });
