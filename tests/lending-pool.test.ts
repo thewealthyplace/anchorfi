@@ -1280,3 +1280,20 @@ describe("lending-pool", () => {
     // At 60% LTV, health factor = 1000/0.6 = 1667
     expect(health).toBeGreaterThan(LIQUIDATION_HEALTH_FACTOR);
   });
+
+  it("liquidation health check consistency across all query functions", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    // Price above boundary
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_400_000)], deployer);
+    expect(isLiquidatable(wallet1).result).toBeOk(Cl.bool(false));
+    expect(liquidateLoan(wallet1).result).toBeErr(Cl.uint(406));
+    // Re-open
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
+    simnet.callPublicFn("collateral-vault", "deposit", [Cl.uint(COLLATERAL)], wallet1);
+    borrowLoan(wallet1);
+    // Price at boundary
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_250_000)], deployer);
+    expect(isLiquidatable(wallet1).result).toBeOk(Cl.bool(true));
+    expect(liquidateLoan(wallet1).result).toBeOk(Cl.bool(true));
+  });
