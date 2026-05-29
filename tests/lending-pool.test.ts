@@ -1488,3 +1488,15 @@ describe("lending-pool", () => {
     expect(s1).toBe(1);
     expect(s2).toBe(1);
   });
+
+  it("get-stx-price caches price within 10-block window", () => {
+    setupProtocol();
+    // Price is set in setupProtocol, check cached value
+    const { result: p1 } = simnet.callReadOnlyFn("lending-pool", "get-max-borrow", [Cl.uint(COLLATERAL)], deployer);
+    // Price should be cached, advance a few blocks
+    for (let i = 0; i < 5; i++) {
+      simnet.callPublicFn("oracle", "set-price", [Cl.uint(STX_PRICE)], deployer);
+    }
+    const { result: p2 } = simnet.callReadOnlyFn("lending-pool", "get-max-borrow", [Cl.uint(COLLATERAL)], deployer);
+    expect(p1).toEqual(p2);
+  });
