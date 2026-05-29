@@ -3,7 +3,7 @@
 ;; Optimized for gas efficiency: price caching, helper functions, validation helpers
 ;; Adds loan activity tracking and borrower event history
 ;; Integrates with liquidation registry for protocol-wide liquidation tracking
-;; Version: 3.0 with liquidation registry integration
+;; Version: 3.1 with full liquidation registry integration
 
 (define-constant ERR-NOT-AUTHORIZED (err u400)) ;; Error for unauthorized access
 (define-constant ERR-ZERO-AMOUNT (err u401)) ;; Error for zero amount inputs
