@@ -1766,3 +1766,11 @@ describe("lending-pool", () => {
     const { result } = getHealthFactor(wallet1);
     expect(result).toBeOk(expect.anything());
   });
+
+  it("health factor with wallet2 scenario 1", () => {
+    setupProtocol();
+    borrowLoan(wallet2);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1800000)], deployer);
+    const { result } = getHealthFactor(wallet2);
+    expect(result).toBeOk(expect.anything());
+  });
