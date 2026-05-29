@@ -2316,3 +2316,9 @@ describe("lending-pool", () => {
       expect(result).toBeErr(Cl.uint(300));
     }
   });
+
+  it("lending pool configure rejection variant 1", () => {
+    const { result } = simnet.callPublicFn("lending-pool", "configure",
+      [Cl.principal(wallet1), Cl.principal(wallet1), Cl.principal(wallet1), Cl.principal(wallet1)], wallet2);
+    expect(result).toBeErr(Cl.uint(400));
+  });
