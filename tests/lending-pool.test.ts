@@ -1297,3 +1297,12 @@ describe("lending-pool", () => {
     expect(isLiquidatable(wallet1).result).toBeOk(Cl.bool(true));
     expect(liquidateLoan(wallet1).result).toBeOk(Cl.bool(true));
   });
+
+  it("health factor edge case scenario variant 1", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const price = 1800000;
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(price)], deployer);
+    const { result } = getHealthFactor(wallet1);
+    expect(result).toBeOk(expect.anything());
+  });
