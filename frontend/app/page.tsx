@@ -50,7 +50,8 @@ function GitHubIcon({ className = "" }: { className?: string }) {
 
 export default function Home() {
   return (
-    <main role="main" className="max-w-5xl mx-auto px-6 pb-24 space-y-24">
+    <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded">Skip to main content</a>
+      <main role="main" id="main-content" className="max-w-5xl mx-auto px-6 pb-24 space-y-24">
 
       {/* Nav */}
       <nav className="flex items-center justify-between sticky top-0 z-10 bg-[#0a0c10]/80 backdrop-blur-sm -mx-6 px-6 py-4 border-b border-[#21262d]/50">
