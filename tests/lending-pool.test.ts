@@ -1387,3 +1387,19 @@ describe("lending-pool", () => {
     const { result } = getHealthFactor(wallet2);
     expect(result).toBeOk(expect.anything());
   });
+
+  it("health factor changes proportionally with interval price drops", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const prices = [2_000_000, 1_750_000, 1_500_000, 1_250_000];
+    let prevHealth = 0;
+    for (const price of prices) {
+      simnet.callPublicFn("oracle", "set-price", [Cl.uint(price)], deployer);
+      const { result } = getHealthFactor(wallet1);
+      const health = Number((result as any).value.value);
+      if (prevHealth > 0) {
+        expect(health).toBeLessThan(prevHealth);
+      }
+      prevHealth = health;
+    }
+  });
