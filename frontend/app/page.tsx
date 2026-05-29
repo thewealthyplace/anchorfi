@@ -34,6 +34,7 @@ const steps = [
   },
 ];
 
+// GitHub URL is configured via NEXT_PUBLIC_GITHUB_URL env var
 function GitHubIcon({ className = "" }: { className?: string }) {
   return (
     <svg
