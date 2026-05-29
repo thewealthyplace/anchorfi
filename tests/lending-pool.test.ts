@@ -940,6 +940,58 @@ describe("lending-pool", () => {
   });
 
 
+  it("health factor at 80% LTV equals 1250", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_250_000)], deployer);
+    const { result } = getHealthFactor(wallet1);
+    const health = Number((result as any).value.value);
+    expect(health).toBe(1250);
+  });
+
+
+  it("health factor decreases as oracle price drops", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result: r1 } = getHealthFactor(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_800_000)], deployer);
+    const { result: r2 } = getHealthFactor(wallet1);
+    const h1 = Number((r1 as any).value.value);
+    const h2 = Number((r2 as any).value.value);
+    expect(h2).toBeLessThan(h1);
+  });
+
+
+  it("health factor rises when oracle price increases", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    const { result: r1 } = getHealthFactor(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(2_500_000)], deployer);
+    const { result: r2 } = getHealthFactor(wallet1);
+    const h1 = Number((r1 as any).value.value);
+    const h2 = Number((r2 as any).value.value);
+    expect(h2).toBeGreaterThan(h1);
+  });
+
+
+  it("liquidate succeeds when LTV exceeds 80% threshold", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_200_000)], deployer);
+    const { result } = liquidateLoan(wallet1);
+    expect(result).toBeOk(Cl.bool(true));
+  });
+
+
+  it("liquidate fails with healthy error when LTV is below 80%", () => {
+    setupProtocol();
+    borrowLoan(wallet1);
+    simnet.callPublicFn("oracle", "set-price", [Cl.uint(1_300_000)], deployer);
+    const { result } = liquidateLoan(wallet1);
+    expect(result).toBeErr(Cl.uint(406));
+  });
+
+
   it("collateral ratio and health factor are consistent for the same position", () => {
     setupProtocol();
     borrowLoan(wallet1);
